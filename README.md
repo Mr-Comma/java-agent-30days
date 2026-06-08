@@ -1,0 +1,23 @@
+# Java Agent 30 Days
+
+一个面向 Java 程序员的 AI Agent 30 天学习与实战项目。
+
+## 目标
+
+每天完成一个可运行的小迭代，长期沉淀成一个 Java 企业级 Agent 项目模板。
+
+## 主线
+
+1. Java Agent 基础：LLM、Prompt、Tool Calling、上下文、多轮对话。
+2. 开源项目学习：LangChain4j、Spring AI Alibaba、LangGraph4j、Hermes Agent。
+3. 程序员助手：代码理解、接口文档、日志分析、测试建议。
+4. 企业级能力：权限、审计、异步任务、记忆、可观测性。
+
+## 每日记录
+
+- 计划：`PLAN.md`
+- 日志：`logs/`
+
+## 第一个作品方向
+
+Java Agent API 文档助手：输入 Swagger / Knife4j 地址，自动识别模块、生成接口文档、分析风险、生成测试建议。
