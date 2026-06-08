@@ -21,3 +21,13 @@
 ## 第一个作品方向
 
 Java Agent API 文档助手：输入 Swagger / Knife4j 地址，自动识别模块、生成接口文档、分析风险、生成测试建议。
+
+## 当前可运行骨架
+
+本仓库已包含一个最小 Spring Boot Agent 骨架，当前先用 mock 响应保留 `/chat` 入口，后续逐步替换为真实 LLM、流式输出和工具调用。
+
+```bash
+mvn test
+mvn spring-boot:run
+curl "http://localhost:8080/chat?prompt=hello"
+```
