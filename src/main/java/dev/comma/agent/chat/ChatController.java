@@ -14,7 +14,9 @@ public class ChatController {
     }
 
     @GetMapping("/chat")
-    public ChatResponse chat(@RequestParam(defaultValue = "") String prompt) {
-        return chatService.reply(prompt);
+    public ChatResponse chat(
+            @RequestParam(defaultValue = "") String prompt,
+            @RequestParam(defaultValue = "default") String sessionId) {
+        return chatService.reply(prompt, sessionId);
     }
 }
