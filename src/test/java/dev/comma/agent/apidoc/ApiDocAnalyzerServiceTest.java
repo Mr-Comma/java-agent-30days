@@ -30,6 +30,8 @@ class ApiDocAnalyzerServiceTest {
         ApiDocAnalysisResponse response = analyzerService.analyze(openApiJson);
 
         assertThat(response.endpointCount()).isEqualTo(3);
+        assertThat(response.summary())
+                .isEqualTo("已识别 3 个接口（DELETE 1 个，GET 1 个，POST 1 个），建议优先检查写操作权限、参数校验和边界测试。");
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(
@@ -47,5 +49,14 @@ class ApiDocAnalyzerServiceTest {
                                 "/orders/{id}",
                                 "删除接口需要重点确认权限、幂等性和误删保护。",
                                 "补充成功删除、重复删除、无权限删除和资源不存在用例。"));
+    }
+
+    @Test
+    void returnsEmptySummaryWhenNoEndpointsParsed() {
+        ApiDocAnalysisResponse response = analyzerService.analyze("{\"openapi\":\"3.0.1\"}");
+
+        assertThat(response.endpointCount()).isZero();
+        assertThat(response.summary()).isEqualTo("未识别到接口，请确认 OpenAPI/Swagger JSON 中是否包含 paths。");
+        assertThat(response.advices()).isEmpty();
     }
 }
