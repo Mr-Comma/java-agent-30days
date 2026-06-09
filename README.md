@@ -24,7 +24,9 @@ Java Agent API 文档助手：输入 Swagger / Knife4j 地址，自动识别模�
 
 ## 当前可运行骨架
 
-本仓库已包含一个最小 Spring Boot Agent 骨架，当前先用 mock 响应保留 `/chat` 入口，并支持识别时间问题后调用内置 `time` 工具；mock agent 的角色名和空 prompt 默认问题可通过 `src/main/resources/application.yml` 的 `agent.chat` 配置调整。`/chat` 还支持用 `sessionId` 做最小内存上下文，响应会返回当前轮次和上一轮 prompt。后续逐步替换为真实 LLM、流式输出和更多工具调用。
+本仓库已包含一个最小 Spring Boot Agent 骨架，当前先用 mock 响应保留 `/chat` 入口，并支持识别时间问题后调用内置 `time` 工具；mock agent 的角色名和空 prompt 默认问题可通过 `src/main/resources/application.yml` 的 `agent.chat` 配置调整。`/chat` 还支持用 `sessionId` 做最小内存上下文，响应会返回当前轮次和上一轮 prompt。
+
+API 文档助手方向已增加一个最小 OpenAPI/Swagger JSON 解析入口：`POST /api-docs/parse` 会从 `paths` 中抽取接口方法、路径和摘要，作为后续接口风险分析、测试建议生成的领域能力起点。后续逐步替换为真实 LLM、流式输出和更多工具调用。
 
 ```bash
 mvn test
@@ -32,4 +34,7 @@ mvn spring-boot:run
 curl "http://localhost:8080/chat?prompt=hello"
 curl --get --data-urlencode "prompt=现在几点" "http://localhost:8080/chat"
 curl --get --data-urlencode "sessionId=api-docs" --data-urlencode "prompt=继续分析接口" "http://localhost:8080/chat"
+curl -X POST http://localhost:8080/api-docs/parse \
+  -H 'Content-Type: application/json' \
+  -d '{"openApiJson":"{\"openapi\":\"3.0.1\",\"paths\":{\"/users\":{\"get\":{\"summary\":\"List users\"}}}}"}'
 ```
