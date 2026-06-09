@@ -32,6 +32,10 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.endpointCount()).isEqualTo(3);
         assertThat(response.summary())
                 .isEqualTo("已识别 3 个接口（DELETE 1 个，GET 1 个，POST 1 个），建议优先检查写操作权限、参数校验和边界测试。");
+        assertThat(response.modules())
+                .containsExactly(
+                        new ApiModuleSummary("orders", 1, 1, "优先覆盖权限、参数校验和失败回滚。"),
+                        new ApiModuleSummary("users", 2, 1, "优先覆盖权限、参数校验和失败回滚。"));
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(
@@ -58,5 +62,6 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.endpointCount()).isZero();
         assertThat(response.summary()).isEqualTo("未识别到接口，请确认 OpenAPI/Swagger JSON 中是否包含 paths。");
         assertThat(response.advices()).isEmpty();
+        assertThat(response.modules()).isEmpty();
     }
 }

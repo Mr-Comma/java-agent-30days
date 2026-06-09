@@ -3,6 +3,7 @@ package dev.comma.agent.apidoc;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +20,43 @@ public class ApiDocAnalyzerService {
         List<ApiEndpointAdvice> advices = parseResponse.endpoints().stream()
                 .map(ApiEndpointAdvice::from)
                 .toList();
-        return new ApiDocAnalysisResponse(parseResponse.endpointCount(), summary(parseResponse.endpoints()), advices);
+        return new ApiDocAnalysisResponse(
+                parseResponse.endpointCount(), summary(parseResponse.endpoints()), advices, modules(parseResponse.endpoints()));
+    }
+
+    private List<ApiModuleSummary> modules(List<ApiEndpoint> endpoints) {
+        Map<String, List<ApiEndpoint>> endpointsByModule = endpoints.stream()
+                .collect(Collectors.groupingBy(endpoint -> moduleName(endpoint.path()), TreeMap::new, Collectors.toList()));
+        return endpointsByModule.entrySet().stream()
+                .map(entry -> new ApiModuleSummary(
+                        entry.getKey(),
+                        entry.getValue().size(),
+                        writeOperationCount(entry.getValue()),
+                        testFocus(entry.getValue())))
+                .toList();
+    }
+
+    private String moduleName(String path) {
+        String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+        if (normalizedPath.isBlank()) {
+            return "root";
+        }
+        int slashIndex = normalizedPath.indexOf('/');
+        String firstSegment = slashIndex >= 0 ? normalizedPath.substring(0, slashIndex) : normalizedPath;
+        return firstSegment.isBlank() ? "root" : firstSegment;
+    }
+
+    private int writeOperationCount(List<ApiEndpoint> endpoints) {
+        return (int) endpoints.stream()
+                .filter(endpoint -> List.of("POST", "PUT", "PATCH", "DELETE").contains(endpoint.method()))
+                .count();
+    }
+
+    private String testFocus(List<ApiEndpoint> endpoints) {
+        if (writeOperationCount(endpoints) > 0) {
+            return "优先覆盖权限、参数校验和失败回滚。";
+        }
+        return "优先覆盖分页、筛选条件和空结果。";
     }
 
     private String summary(List<ApiEndpoint> endpoints) {
