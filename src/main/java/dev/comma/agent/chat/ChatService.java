@@ -8,19 +8,21 @@ import org.springframework.stereotype.Service;
 public class ChatService {
 
     private final Clock clock;
+    private final ChatAgentProperties properties;
     private final ToolRegistry toolRegistry;
 
-    public ChatService(Clock clock, ToolRegistry toolRegistry) {
+    public ChatService(Clock clock, ChatAgentProperties properties, ToolRegistry toolRegistry) {
         this.clock = clock;
+        this.properties = properties;
         this.toolRegistry = toolRegistry;
     }
 
     public ChatResponse reply(String prompt) {
-        String normalizedPrompt = prompt == null || prompt.isBlank() ? "介绍一下 Java Agent" : prompt.trim();
+        String normalizedPrompt = prompt == null || prompt.isBlank() ? properties.defaultPrompt() : prompt.trim();
         OffsetDateTime generatedAt = OffsetDateTime.now(clock);
 
         return toolRegistry.executeFirstSupported(normalizedPrompt, generatedAt)
                 .map(toolResult -> new ChatResponse(toolResult, generatedAt))
-                .orElseGet(() -> new ChatResponse("Day 3 mock agent received: " + normalizedPrompt, generatedAt));
+                .orElseGet(() -> new ChatResponse(properties.roleName() + " received: " + normalizedPrompt, generatedAt));
     }
 }

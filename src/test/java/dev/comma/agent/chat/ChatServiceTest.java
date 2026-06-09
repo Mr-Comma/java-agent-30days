@@ -10,15 +10,17 @@ import org.junit.jupiter.api.Test;
 
 class ChatServiceTest {
 
+    private final ChatAgentProperties properties = new ChatAgentProperties();
     private final ChatService chatService = new ChatService(
             Clock.fixed(Instant.parse("2026-06-09T10:00:00Z"), ZoneOffset.UTC),
+            properties,
             new ToolRegistry(List.of(new TimeTool())));
 
     @Test
     void repliesWithPromptWhenProvided() {
         ChatResponse response = chatService.reply("hello agent");
 
-        assertThat(response.message()).isEqualTo("Day 3 mock agent received: hello agent");
+        assertThat(response.message()).isEqualTo("Java Agent API 文档助手 received: hello agent");
         assertThat(response.generatedAt()).isNotNull();
     }
 
@@ -26,7 +28,22 @@ class ChatServiceTest {
     void usesDefaultPromptWhenBlank() {
         ChatResponse response = chatService.reply(" ");
 
-        assertThat(response.message()).contains("介绍一下 Java Agent");
+        assertThat(response.message()).contains("介绍一下 Java Agent API 文档助手");
+    }
+
+    @Test
+    void supportsConfigurableRoleAndDefaultPrompt() {
+        ChatAgentProperties customProperties = new ChatAgentProperties();
+        customProperties.setRoleName("接口风险分析助手");
+        customProperties.setDefaultPrompt("请生成接口风险清单");
+        ChatService customService = new ChatService(
+                Clock.fixed(Instant.parse("2026-06-09T10:00:00Z"), ZoneOffset.UTC),
+                customProperties,
+                new ToolRegistry(List.of(new TimeTool())));
+
+        ChatResponse response = customService.reply(null);
+
+        assertThat(response.message()).isEqualTo("接口风险分析助手 received: 请生成接口风险清单");
     }
 
     @Test

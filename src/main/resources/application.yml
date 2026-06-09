@@ -1,0 +1,4 @@
+agent:
+  chat:
+    role-name: Java Agent API 文档助手
+    default-prompt: 请介绍你如何帮助 Java 程序员整理 API 文档
