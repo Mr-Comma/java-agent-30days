@@ -21,8 +21,14 @@ public class ApiDocAnalyzerService {
                 .map(ApiEndpointAdvice::from)
                 .toList();
         List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
+        List<ApiReviewStep> reviewPlan = reviewPlan(modules);
         return new ApiDocAnalysisResponse(
-                parseResponse.endpointCount(), summary(parseResponse.endpoints(), modules), advices, modules, reviewPlan(modules));
+                parseResponse.endpointCount(),
+                summary(parseResponse.endpoints(), modules, reviewPlan),
+                topPriorityModule(reviewPlan),
+                advices,
+                modules,
+                reviewPlan);
     }
 
     private List<ApiModuleSummary> modules(List<ApiEndpoint> endpoints) {
@@ -97,6 +103,13 @@ public class ApiDocAnalyzerService {
                 .toList();
     }
 
+    private String topPriorityModule(List<ApiReviewStep> reviewPlan) {
+        return reviewPlan.stream()
+                .findFirst()
+                .map(ApiReviewStep::module)
+                .orElse(null);
+    }
+
     private String reviewAction(ApiModuleSummary module) {
         return switch (module.riskLevel()) {
             case "HIGH" -> "先审查删除接口、权限控制和误删保护。";
@@ -105,7 +118,7 @@ public class ApiDocAnalyzerService {
         };
     }
 
-    private String summary(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules) {
+    private String summary(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules, List<ApiReviewStep> reviewPlan) {
         if (endpoints.isEmpty()) {
             return "未识别到接口，请确认 OpenAPI/Swagger JSON 中是否包含 paths。";
         }
@@ -120,7 +133,14 @@ public class ApiDocAnalyzerService {
                 .reduce((left, right) -> left + "，" + right)
                 .orElse("无接口");
         return "已识别 " + endpoints.size() + " 个接口（" + methodSummary + "），" + moduleRiskSummary(modules)
-                + "建议优先检查写操作权限、参数校验和边界测试。";
+                + firstReviewSuggestion(reviewPlan) + "建议优先检查写操作权限、参数校验和边界测试。";
+    }
+
+    private String firstReviewSuggestion(List<ApiReviewStep> reviewPlan) {
+        return reviewPlan.stream()
+                .findFirst()
+                .map(step -> "第一步建议审查 " + step.module() + " 模块。")
+                .orElse("");
     }
 
     private String moduleRiskSummary(List<ApiModuleSummary> modules) {
