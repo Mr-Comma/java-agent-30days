@@ -20,6 +20,9 @@ class ApiDocAnalyzerServiceTest {
                       "get": {"summary": "List users"},
                       "post": {"summary": "Create user"}
                     },
+                    "/audit/events": {
+                      "get": {"summary": "List audit events"}
+                    },
                     "/orders/{id}": {
                       "delete": {"summary": "Delete order"}
                     }
@@ -29,13 +32,14 @@ class ApiDocAnalyzerServiceTest {
 
         ApiDocAnalysisResponse response = analyzerService.analyze(openApiJson);
 
-        assertThat(response.endpointCount()).isEqualTo(3);
+        assertThat(response.endpointCount()).isEqualTo(4);
         assertThat(response.summary())
-                .isEqualTo("已识别 3 个接口（DELETE 1 个，GET 1 个，POST 1 个），模块风险分布：高风险 1 个，中风险 1 个，低风险 0 个。建议优先检查写操作权限、参数校验和边界测试。");
+                .isEqualTo("已识别 4 个接口（DELETE 1 个，GET 2 个，POST 1 个），模块风险分布：高风险 1 个，中风险 1 个，低风险 1 个。建议优先检查写操作权限、参数校验和边界测试。");
         assertThat(response.modules())
                 .containsExactly(
-                        new ApiModuleSummary("orders", 1, 1, "HIGH", "优先覆盖权限、参数校验和失败回滚。"),
-                        new ApiModuleSummary("users", 2, 1, "MEDIUM", "优先覆盖权限、参数校验和失败回滚。"));
+                        new ApiModuleSummary("orders", 1, 1, "HIGH", 1, "优先覆盖权限、参数校验和失败回滚。"),
+                        new ApiModuleSummary("users", 2, 1, "MEDIUM", 2, "优先覆盖权限、参数校验和失败回滚。"),
+                        new ApiModuleSummary("audit", 1, 0, "LOW", 3, "优先覆盖分页、筛选条件和空结果。"));
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(
@@ -48,6 +52,11 @@ class ApiDocAnalyzerServiceTest {
                                 "/users",
                                 "写操作接口需要重点确认参数校验、权限控制和失败回滚。",
                                 "补充成功提交、必填缺失、非法参数和无权限访问用例。"),
+                        new ApiEndpointAdvice(
+                                "GET",
+                                "/audit/events",
+                                "读接口需要重点确认分页、过滤条件和空结果返回。",
+                                "补充正常列表、空列表、分页边界和筛选条件用例。"),
                         new ApiEndpointAdvice(
                                 "DELETE",
                                 "/orders/{id}",

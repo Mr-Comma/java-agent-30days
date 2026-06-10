@@ -34,7 +34,15 @@ public class ApiDocAnalyzerService {
                         entry.getValue().size(),
                         writeOperationCount(entry.getValue()),
                         riskLevel(entry.getValue()),
+                        priority(entry.getValue()),
                         testFocus(entry.getValue())))
+                .sorted((left, right) -> {
+                    int priorityCompare = Integer.compare(left.priority(), right.priority());
+                    if (priorityCompare != 0) {
+                        return priorityCompare;
+                    }
+                    return left.module().compareTo(right.module());
+                })
                 .toList();
     }
 
@@ -66,6 +74,14 @@ public class ApiDocAnalyzerService {
             return "MEDIUM";
         }
         return "LOW";
+    }
+
+    private int priority(List<ApiEndpoint> endpoints) {
+        return switch (riskLevel(endpoints)) {
+            case "HIGH" -> 1;
+            case "MEDIUM" -> 2;
+            default -> 3;
+        };
     }
 
     private String testFocus(List<ApiEndpoint> endpoints) {

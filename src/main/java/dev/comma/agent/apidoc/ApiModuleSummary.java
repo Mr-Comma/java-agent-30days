@@ -1,5 +1,5 @@
 package dev.comma.agent.apidoc;
 
 public record ApiModuleSummary(
-        String module, int endpointCount, int writeOperationCount, String riskLevel, String testFocus) {
+        String module, int endpointCount, int writeOperationCount, String riskLevel, int priority, String testFocus) {
 }
