@@ -20,8 +20,9 @@ public class ApiDocAnalyzerService {
         List<ApiEndpointAdvice> advices = parseResponse.endpoints().stream()
                 .map(ApiEndpointAdvice::from)
                 .toList();
+        List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
         return new ApiDocAnalysisResponse(
-                parseResponse.endpointCount(), summary(parseResponse.endpoints()), advices, modules(parseResponse.endpoints()));
+                parseResponse.endpointCount(), summary(parseResponse.endpoints(), modules), advices, modules);
     }
 
     private List<ApiModuleSummary> modules(List<ApiEndpoint> endpoints) {
@@ -74,7 +75,7 @@ public class ApiDocAnalyzerService {
         return "优先覆盖分页、筛选条件和空结果。";
     }
 
-    private String summary(List<ApiEndpoint> endpoints) {
+    private String summary(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules) {
         if (endpoints.isEmpty()) {
             return "未识别到接口，请确认 OpenAPI/Swagger JSON 中是否包含 paths。";
         }
@@ -88,6 +89,14 @@ public class ApiDocAnalyzerService {
                 .map(entry -> entry.getKey() + " " + entry.getValue() + " 个")
                 .reduce((left, right) -> left + "，" + right)
                 .orElse("无接口");
-        return "已识别 " + endpoints.size() + " 个接口（" + methodSummary + "），建议优先检查写操作权限、参数校验和边界测试。";
+        return "已识别 " + endpoints.size() + " 个接口（" + methodSummary + "），" + moduleRiskSummary(modules)
+                + "建议优先检查写操作权限、参数校验和边界测试。";
+    }
+
+    private String moduleRiskSummary(List<ApiModuleSummary> modules) {
+        Map<String, Long> riskCounts = modules.stream()
+                .collect(Collectors.groupingBy(ApiModuleSummary::riskLevel, TreeMap::new, Collectors.counting()));
+        return "模块风险分布：高风险 " + riskCounts.getOrDefault("HIGH", 0L) + " 个，中风险 "
+                + riskCounts.getOrDefault("MEDIUM", 0L) + " 个，低风险 " + riskCounts.getOrDefault("LOW", 0L) + " 个。";
     }
 }
