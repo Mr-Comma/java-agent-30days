@@ -40,6 +40,11 @@ class ApiDocAnalyzerServiceTest {
                         new ApiModuleSummary("orders", 1, 1, "HIGH", 1, "优先覆盖权限、参数校验和失败回滚。"),
                         new ApiModuleSummary("users", 2, 1, "MEDIUM", 2, "优先覆盖权限、参数校验和失败回滚。"),
                         new ApiModuleSummary("audit", 1, 0, "LOW", 3, "优先覆盖分页、筛选条件和空结果。"));
+        assertThat(response.reviewPlan())
+                .containsExactly(
+                        new ApiReviewStep("orders", 1, "先审查删除接口、权限控制和误删保护。"),
+                        new ApiReviewStep("users", 2, "再审查写操作参数校验和失败回滚。"),
+                        new ApiReviewStep("audit", 3, "最后抽查读接口分页、筛选和空结果。"));
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(
@@ -72,5 +77,6 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.summary()).isEqualTo("未识别到接口，请确认 OpenAPI/Swagger JSON 中是否包含 paths。");
         assertThat(response.advices()).isEmpty();
         assertThat(response.modules()).isEmpty();
+        assertThat(response.reviewPlan()).isEmpty();
     }
 }

@@ -22,7 +22,7 @@ public class ApiDocAnalyzerService {
                 .toList();
         List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
         return new ApiDocAnalysisResponse(
-                parseResponse.endpointCount(), summary(parseResponse.endpoints(), modules), advices, modules);
+                parseResponse.endpointCount(), summary(parseResponse.endpoints(), modules), advices, modules, reviewPlan(modules));
     }
 
     private List<ApiModuleSummary> modules(List<ApiEndpoint> endpoints) {
@@ -89,6 +89,20 @@ public class ApiDocAnalyzerService {
             return "优先覆盖权限、参数校验和失败回滚。";
         }
         return "优先覆盖分页、筛选条件和空结果。";
+    }
+
+    private List<ApiReviewStep> reviewPlan(List<ApiModuleSummary> modules) {
+        return modules.stream()
+                .map(module -> new ApiReviewStep(module.module(), module.priority(), reviewAction(module)))
+                .toList();
+    }
+
+    private String reviewAction(ApiModuleSummary module) {
+        return switch (module.riskLevel()) {
+            case "HIGH" -> "先审查删除接口、权限控制和误删保护。";
+            case "MEDIUM" -> "再审查写操作参数校验和失败回滚。";
+            default -> "最后抽查读接口分页、筛选和空结果。";
+        };
     }
 
     private String summary(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules) {
