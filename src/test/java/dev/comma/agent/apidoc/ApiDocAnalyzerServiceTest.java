@@ -34,8 +34,8 @@ class ApiDocAnalyzerServiceTest {
                 .isEqualTo("已识别 3 个接口（DELETE 1 个，GET 1 个，POST 1 个），建议优先检查写操作权限、参数校验和边界测试。");
         assertThat(response.modules())
                 .containsExactly(
-                        new ApiModuleSummary("orders", 1, 1, "优先覆盖权限、参数校验和失败回滚。"),
-                        new ApiModuleSummary("users", 2, 1, "优先覆盖权限、参数校验和失败回滚。"));
+                        new ApiModuleSummary("orders", 1, 1, "HIGH", "优先覆盖权限、参数校验和失败回滚。"),
+                        new ApiModuleSummary("users", 2, 1, "MEDIUM", "优先覆盖权限、参数校验和失败回滚。"));
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(

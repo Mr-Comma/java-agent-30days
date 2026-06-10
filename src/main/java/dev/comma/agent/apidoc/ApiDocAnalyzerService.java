@@ -32,6 +32,7 @@ public class ApiDocAnalyzerService {
                         entry.getKey(),
                         entry.getValue().size(),
                         writeOperationCount(entry.getValue()),
+                        riskLevel(entry.getValue()),
                         testFocus(entry.getValue())))
                 .toList();
     }
@@ -50,6 +51,20 @@ public class ApiDocAnalyzerService {
         return (int) endpoints.stream()
                 .filter(endpoint -> List.of("POST", "PUT", "PATCH", "DELETE").contains(endpoint.method()))
                 .count();
+    }
+
+    private String riskLevel(List<ApiEndpoint> endpoints) {
+        boolean hasDeleteOperation = endpoints.stream().anyMatch(endpoint -> "DELETE".equals(endpoint.method()));
+        boolean hasPathParameter = endpoints.stream().anyMatch(endpoint -> endpoint.path().contains("{"));
+        int writeOperationCount = writeOperationCount(endpoints);
+
+        if (hasDeleteOperation || (writeOperationCount >= 2 && hasPathParameter)) {
+            return "HIGH";
+        }
+        if (writeOperationCount > 0 || hasPathParameter) {
+            return "MEDIUM";
+        }
+        return "LOW";
     }
 
     private String testFocus(List<ApiEndpoint> endpoints) {
