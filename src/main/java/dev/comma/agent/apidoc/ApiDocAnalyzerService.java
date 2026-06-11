@@ -29,6 +29,9 @@ public class ApiDocAnalyzerService {
                 analysisRole(),
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
+                taskGoal(reviewPlan),
+                taskConstraints(reviewPlan),
+                expectedOutput(),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -178,6 +181,28 @@ public class ApiDocAnalyzerService {
                 new ApiAnalysisFact("moduleRiskDistribution", moduleRiskSummary(modules)),
                 new ApiAnalysisFact("topPriorityModule", topPriorityModule(reviewPlan)),
                 new ApiAnalysisFact("firstReviewAction", reviewPlan.get(0).action()));
+    }
+
+    private String taskGoal(List<ApiReviewStep> reviewPlan) {
+        return reviewPlan.stream()
+                .findFirst()
+                .map(step -> "优先完成 " + step.module() + " 模块的 API 风险审查。")
+                .orElse("先确认 OpenAPI/Swagger JSON 中是否包含 paths。");
+    }
+
+    private String taskConstraints(List<ApiReviewStep> reviewPlan) {
+        if (reviewPlan.isEmpty()) {
+            return "不要编造接口；缺少 paths 时只提示补充 API 文档输入。";
+        }
+        String planContext = reviewPlan.stream()
+                .map(step -> step.module() + "(P" + step.priority() + ")：" + step.reason())
+                .reduce((left, right) -> left + "；" + right)
+                .orElse("暂无审查计划");
+        return "必须按审查优先级执行；" + planContext;
+    }
+
+    private String expectedOutput() {
+        return "输出风险说明、测试建议和下一步行动。";
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
