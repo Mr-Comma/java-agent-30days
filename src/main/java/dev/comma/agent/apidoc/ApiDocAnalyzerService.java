@@ -26,7 +26,9 @@ public class ApiDocAnalyzerService {
                 parseResponse.endpointCount(),
                 summary(parseResponse.endpoints(), modules, reviewPlan),
                 topPriorityModule(reviewPlan),
-                analysisContext(parseResponse.endpoints(), modules, reviewPlan),
+                analysisRole(),
+                analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
+                analysisTask(reviewPlan),
                 advices,
                 modules,
                 reviewPlan);
@@ -153,19 +155,27 @@ public class ApiDocAnalyzerService {
                 .orElse("");
     }
 
-    private String analysisContext(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
+    private String analysisRole() {
+        return "你是 Java Agent API 文档审查助手。";
+    }
+
+    private String analysisFacts(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
             List<ApiReviewStep> reviewPlan) {
         if (endpoints.isEmpty()) {
-            return "请先提供包含 paths 的 OpenAPI/Swagger JSON，再生成 Agent 分析上下文。";
+            return "请先提供包含 paths 的 OpenAPI/Swagger JSON。";
         }
+        return summary(endpoints, modules, reviewPlan) + "首要模块：" + topPriorityModule(reviewPlan) + "。";
+    }
 
+    private String analysisTask(List<ApiReviewStep> reviewPlan) {
+        if (reviewPlan.isEmpty()) {
+            return "请输出风险说明、测试建议和下一步行动。";
+        }
         String planContext = reviewPlan.stream()
                 .map(step -> step.module() + "(P" + step.priority() + ")：" + step.action() + step.reason())
                 .reduce((left, right) -> left + "；" + right)
                 .orElse("暂无审查计划");
-        return "你是 Java Agent API 文档审查助手。" + summary(endpoints, modules, reviewPlan)
-                + "首要模块：" + topPriorityModule(reviewPlan) + "。审查计划：" + planContext
-                + "请基于以上上下文输出风险说明、测试建议和下一步行动。";
+        return "审查计划：" + planContext + "请基于以上上下文输出风险说明、测试建议和下一步行动。";
     }
 
     private String moduleRiskSummary(List<ApiModuleSummary> modules) {
