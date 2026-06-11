@@ -26,6 +26,7 @@ public class ApiDocAnalyzerService {
                 parseResponse.endpointCount(),
                 summary(parseResponse.endpoints(), modules, reviewPlan),
                 topPriorityModule(reviewPlan),
+                analysisContext(parseResponse.endpoints(), modules, reviewPlan),
                 advices,
                 modules,
                 reviewPlan);
@@ -150,6 +151,21 @@ public class ApiDocAnalyzerService {
                 .findFirst()
                 .map(step -> "第一步建议审查 " + step.module() + " 模块。")
                 .orElse("");
+    }
+
+    private String analysisContext(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
+            List<ApiReviewStep> reviewPlan) {
+        if (endpoints.isEmpty()) {
+            return "请先提供包含 paths 的 OpenAPI/Swagger JSON，再生成 Agent 分析上下文。";
+        }
+
+        String planContext = reviewPlan.stream()
+                .map(step -> step.module() + "(P" + step.priority() + ")：" + step.action() + step.reason())
+                .reduce((left, right) -> left + "；" + right)
+                .orElse("暂无审查计划");
+        return "你是 Java Agent API 文档审查助手。" + summary(endpoints, modules, reviewPlan)
+                + "首要模块：" + topPriorityModule(reviewPlan) + "。审查计划：" + planContext
+                + "请基于以上上下文输出风险说明、测试建议和下一步行动。";
     }
 
     private String moduleRiskSummary(List<ApiModuleSummary> modules) {
