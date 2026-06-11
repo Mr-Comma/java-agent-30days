@@ -99,7 +99,8 @@ public class ApiDocAnalyzerService {
 
     private List<ApiReviewStep> reviewPlan(List<ApiModuleSummary> modules) {
         return modules.stream()
-                .map(module -> new ApiReviewStep(module.module(), module.priority(), reviewAction(module)))
+                .map(module -> new ApiReviewStep(
+                        module.module(), module.priority(), reviewAction(module), reviewReason(module)))
                 .toList();
     }
 
@@ -115,6 +116,14 @@ public class ApiDocAnalyzerService {
             case "HIGH" -> "先审查删除接口、权限控制和误删保护。";
             case "MEDIUM" -> "再审查写操作参数校验和失败回滚。";
             default -> "最后抽查读接口分页、筛选和空结果。";
+        };
+    }
+
+    private String reviewReason(ApiModuleSummary module) {
+        return switch (module.riskLevel()) {
+            case "HIGH" -> "高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。";
+            case "MEDIUM" -> "中风险模块排在其后，因为包含写操作或路径参数。";
+            default -> "低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。";
         };
     }
 

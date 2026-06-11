@@ -43,9 +43,21 @@ class ApiDocAnalyzerServiceTest {
                         new ApiModuleSummary("audit", 1, 0, "LOW", 3, "优先覆盖分页、筛选条件和空结果。"));
         assertThat(response.reviewPlan())
                 .containsExactly(
-                        new ApiReviewStep("orders", 1, "先审查删除接口、权限控制和误删保护。"),
-                        new ApiReviewStep("users", 2, "再审查写操作参数校验和失败回滚。"),
-                        new ApiReviewStep("audit", 3, "最后抽查读接口分页、筛选和空结果。"));
+                        new ApiReviewStep(
+                                "orders",
+                                1,
+                                "先审查删除接口、权限控制和误删保护。",
+                                "高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。"),
+                        new ApiReviewStep(
+                                "users",
+                                2,
+                                "再审查写操作参数校验和失败回滚。",
+                                "中风险模块排在其后，因为包含写操作或路径参数。"),
+                        new ApiReviewStep(
+                                "audit",
+                                3,
+                                "最后抽查读接口分页、筛选和空结果。",
+                                "低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。"));
         assertThat(response.advices())
                 .containsExactly(
                         new ApiEndpointAdvice(
