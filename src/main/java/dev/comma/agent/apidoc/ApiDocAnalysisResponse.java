@@ -8,6 +8,7 @@ public record ApiDocAnalysisResponse(
         String topPriorityModule,
         String analysisRole,
         String analysisFacts,
+        List<ApiAnalysisFact> analysisFactItems,
         String analysisTask,
         List<ApiEndpointAdvice> advices,
         List<ApiModuleSummary> modules,

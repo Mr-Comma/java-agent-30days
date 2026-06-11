@@ -28,6 +28,7 @@ public class ApiDocAnalyzerService {
                 topPriorityModule(reviewPlan),
                 analysisRole(),
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
+                analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -165,6 +166,18 @@ public class ApiDocAnalyzerService {
             return "请先提供包含 paths 的 OpenAPI/Swagger JSON。";
         }
         return summary(endpoints, modules, reviewPlan) + "首要模块：" + topPriorityModule(reviewPlan) + "。";
+    }
+
+    private List<ApiAnalysisFact> analysisFactItems(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
+            List<ApiReviewStep> reviewPlan) {
+        if (endpoints.isEmpty()) {
+            return List.of(new ApiAnalysisFact("input", "未识别到 paths，请提供 OpenAPI/Swagger JSON。"));
+        }
+        return List.of(
+                new ApiAnalysisFact("endpointCount", String.valueOf(endpoints.size())),
+                new ApiAnalysisFact("moduleRiskDistribution", moduleRiskSummary(modules)),
+                new ApiAnalysisFact("topPriorityModule", topPriorityModule(reviewPlan)),
+                new ApiAnalysisFact("firstReviewAction", reviewPlan.get(0).action()));
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {

@@ -39,6 +39,12 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.analysisRole()).isEqualTo("你是 Java Agent API 文档审查助手。");
         assertThat(response.analysisFacts())
                 .isEqualTo("已识别 4 个接口（DELETE 1 个，GET 2 个，POST 1 个），模块风险分布：高风险 1 个，中风险 1 个，低风险 1 个。第一步建议审查 orders 模块。建议优先检查写操作权限、参数校验和边界测试。首要模块：orders。");
+        assertThat(response.analysisFactItems())
+                .containsExactly(
+                        new ApiAnalysisFact("endpointCount", "4"),
+                        new ApiAnalysisFact("moduleRiskDistribution", "模块风险分布：高风险 1 个，中风险 1 个，低风险 1 个。"),
+                        new ApiAnalysisFact("topPriorityModule", "orders"),
+                        new ApiAnalysisFact("firstReviewAction", "先审查删除接口、权限控制和误删保护。"));
         assertThat(response.analysisTask())
                 .isEqualTo("审查计划：orders(P1)：先审查删除接口、权限控制和误删保护。高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。；users(P2)：再审查写操作参数校验和失败回滚。中风险模块排在其后，因为包含写操作或路径参数。；audit(P3)：最后抽查读接口分页、筛选和空结果。低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。请基于以上上下文输出风险说明、测试建议和下一步行动。");
         assertThat(response.modules())
@@ -99,6 +105,8 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.topPriorityModule()).isNull();
         assertThat(response.analysisRole()).isEqualTo("你是 Java Agent API 文档审查助手。");
         assertThat(response.analysisFacts()).isEqualTo("请先提供包含 paths 的 OpenAPI/Swagger JSON。");
+        assertThat(response.analysisFactItems())
+                .containsExactly(new ApiAnalysisFact("input", "未识别到 paths，请提供 OpenAPI/Swagger JSON。"));
         assertThat(response.analysisTask()).isEqualTo("请输出风险说明、测试建议和下一步行动。");
     }
 }
