@@ -33,6 +33,7 @@ public class ApiDocAnalyzerService {
                 taskConstraints(reviewPlan),
                 expectedOutput(),
                 executionChecklist(reviewPlan),
+                analysisTrace(parseResponse.endpoints(), modules, reviewPlan, advices),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -213,6 +214,15 @@ public class ApiDocAnalyzerService {
         return reviewPlan.stream()
                 .map(step -> "P" + step.priority() + " - " + step.module() + "：" + step.action() + step.reason())
                 .toList();
+    }
+
+    private List<String> analysisTrace(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
+            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices) {
+        return List.of(
+                "parse: 识别接口 " + endpoints.size() + " 个。",
+                "aggregate: 聚合模块 " + modules.size() + " 个。",
+                "prioritize: 生成审查步骤 " + reviewPlan.size() + " 个。",
+                "advise: 生成风险提示和测试建议 " + advices.size() + " 条。");
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
