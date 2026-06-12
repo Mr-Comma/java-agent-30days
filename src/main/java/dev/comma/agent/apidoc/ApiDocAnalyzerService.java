@@ -31,6 +31,7 @@ public class ApiDocAnalyzerService {
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
                 workflowStatus,
+                blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
                 taskConstraints(reviewPlan),
@@ -203,6 +204,13 @@ public class ApiDocAnalyzerService {
                 .findFirst()
                 .map(step -> "下一步执行 P" + step.priority() + "：审查 " + step.module() + " 模块，" + step.action())
                 .orElse("请先确认解析结果，再启动 API 风险审查。");
+    }
+
+    private String blockingReason(String workflowStatus) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。";
+        }
+        return null;
     }
 
     private String taskGoal(List<ApiReviewStep> reviewPlan) {

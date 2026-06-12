@@ -46,6 +46,7 @@ class ApiDocAnalyzerServiceTest {
                         new ApiAnalysisFact("topPriorityModule", "orders"),
                         new ApiAnalysisFact("firstReviewAction", "先审查删除接口、权限控制和误删保护。"));
         assertThat(response.workflowStatus()).isEqualTo("READY");
+        assertThat(response.blockingReason()).isNull();
         assertThat(response.recommendedNextAction())
                 .isEqualTo("下一步执行 P1：审查 orders 模块，先审查删除接口、权限控制和误删保护。");
         assertThat(response.taskGoal()).isEqualTo("优先完成 orders 模块的 API 风险审查。");
@@ -126,6 +127,7 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.analysisFactItems())
                 .containsExactly(new ApiAnalysisFact("input", "未识别到 paths，请提供 OpenAPI/Swagger JSON。"));
         assertThat(response.workflowStatus()).isEqualTo("NEEDS_INPUT");
+        assertThat(response.blockingReason()).isEqualTo("OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         assertThat(response.recommendedNextAction())
                 .isEqualTo("请先补充包含 paths 的 OpenAPI/Swagger JSON，再启动 API 风险审查。");
         assertThat(response.taskGoal()).isEqualTo("先确认 OpenAPI/Swagger JSON 中是否包含 paths。");
