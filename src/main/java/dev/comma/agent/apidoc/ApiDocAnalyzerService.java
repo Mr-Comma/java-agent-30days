@@ -32,6 +32,7 @@ public class ApiDocAnalyzerService {
                 taskGoal(reviewPlan),
                 taskConstraints(reviewPlan),
                 expectedOutput(),
+                executionChecklist(reviewPlan),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -203,6 +204,15 @@ public class ApiDocAnalyzerService {
 
     private String expectedOutput() {
         return "输出风险说明、测试建议和下一步行动。";
+    }
+
+    private List<String> executionChecklist(List<ApiReviewStep> reviewPlan) {
+        if (reviewPlan.isEmpty()) {
+            return List.of("确认输入 JSON 是否包含 paths，再开始 API 风险审查。");
+        }
+        return reviewPlan.stream()
+                .map(step -> "P" + step.priority() + " - " + step.module() + "：" + step.action() + step.reason())
+                .toList();
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {

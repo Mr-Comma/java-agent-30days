@@ -12,6 +12,7 @@ public record ApiDocAnalysisResponse(
         String taskGoal,
         String taskConstraints,
         String expectedOutput,
+        List<String> executionChecklist,
         String analysisTask,
         List<ApiEndpointAdvice> advices,
         List<ApiModuleSummary> modules,

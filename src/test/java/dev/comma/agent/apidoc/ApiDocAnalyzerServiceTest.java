@@ -49,6 +49,11 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.taskConstraints())
                 .isEqualTo("必须按审查优先级执行；orders(P1)：高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。；users(P2)：中风险模块排在其后，因为包含写操作或路径参数。；audit(P3)：低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。");
         assertThat(response.expectedOutput()).isEqualTo("输出风险说明、测试建议和下一步行动。");
+        assertThat(response.executionChecklist())
+                .containsExactly(
+                        "P1 - orders：先审查删除接口、权限控制和误删保护。高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。",
+                        "P2 - users：再审查写操作参数校验和失败回滚。中风险模块排在其后，因为包含写操作或路径参数。",
+                        "P3 - audit：最后抽查读接口分页、筛选和空结果。低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。");
         assertThat(response.analysisTask())
                 .isEqualTo("审查计划：orders(P1)：先审查删除接口、权限控制和误删保护。高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。；users(P2)：再审查写操作参数校验和失败回滚。中风险模块排在其后，因为包含写操作或路径参数。；audit(P3)：最后抽查读接口分页、筛选和空结果。低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。请基于以上上下文输出风险说明、测试建议和下一步行动。");
         assertThat(response.modules())
@@ -114,6 +119,8 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.taskGoal()).isEqualTo("先确认 OpenAPI/Swagger JSON 中是否包含 paths。");
         assertThat(response.taskConstraints()).isEqualTo("不要编造接口；缺少 paths 时只提示补充 API 文档输入。");
         assertThat(response.expectedOutput()).isEqualTo("输出风险说明、测试建议和下一步行动。");
+        assertThat(response.executionChecklist())
+                .containsExactly("确认输入 JSON 是否包含 paths，再开始 API 风险审查。");
         assertThat(response.analysisTask()).isEqualTo("请输出风险说明、测试建议和下一步行动。");
     }
 }
