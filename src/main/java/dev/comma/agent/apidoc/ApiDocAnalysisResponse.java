@@ -10,6 +10,7 @@ public record ApiDocAnalysisResponse(
         String analysisFacts,
         List<ApiAnalysisFact> analysisFactItems,
         String workflowStatus,
+        String recommendedNextAction,
         String taskGoal,
         String taskConstraints,
         String expectedOutput,

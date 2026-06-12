@@ -22,6 +22,7 @@ public class ApiDocAnalyzerService {
                 .toList();
         List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
         List<ApiReviewStep> reviewPlan = reviewPlan(modules);
+        String workflowStatus = workflowStatus(parseResponse.endpoints());
         return new ApiDocAnalysisResponse(
                 parseResponse.endpointCount(),
                 summary(parseResponse.endpoints(), modules, reviewPlan),
@@ -29,7 +30,8 @@ public class ApiDocAnalyzerService {
                 analysisRole(),
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
-                workflowStatus(parseResponse.endpoints()),
+                workflowStatus,
+                recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
                 taskConstraints(reviewPlan),
                 expectedOutput(),
@@ -191,6 +193,16 @@ public class ApiDocAnalyzerService {
             return "NEEDS_INPUT";
         }
         return "READY";
+    }
+
+    private String recommendedNextAction(String workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "请先补充包含 paths 的 OpenAPI/Swagger JSON，再启动 API 风险审查。";
+        }
+        return reviewPlan.stream()
+                .findFirst()
+                .map(step -> "下一步执行 P" + step.priority() + "：审查 " + step.module() + " 模块，" + step.action())
+                .orElse("请先确认解析结果，再启动 API 风险审查。");
     }
 
     private String taskGoal(List<ApiReviewStep> reviewPlan) {
