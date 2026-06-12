@@ -9,6 +9,7 @@ public record ApiDocAnalysisResponse(
         String analysisRole,
         String analysisFacts,
         List<ApiAnalysisFact> analysisFactItems,
+        String workflowStatus,
         String taskGoal,
         String taskConstraints,
         String expectedOutput,

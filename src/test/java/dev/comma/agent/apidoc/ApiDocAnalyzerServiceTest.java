@@ -45,6 +45,7 @@ class ApiDocAnalyzerServiceTest {
                         new ApiAnalysisFact("moduleRiskDistribution", "模块风险分布：高风险 1 个，中风险 1 个，低风险 1 个。"),
                         new ApiAnalysisFact("topPriorityModule", "orders"),
                         new ApiAnalysisFact("firstReviewAction", "先审查删除接口、权限控制和误删保护。"));
+        assertThat(response.workflowStatus()).isEqualTo("READY");
         assertThat(response.taskGoal()).isEqualTo("优先完成 orders 模块的 API 风险审查。");
         assertThat(response.taskConstraints())
                 .isEqualTo("必须按审查优先级执行；orders(P1)：高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。；users(P2)：中风险模块排在其后，因为包含写操作或路径参数。；audit(P3)：低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。");
@@ -122,6 +123,7 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.analysisFacts()).isEqualTo("请先提供包含 paths 的 OpenAPI/Swagger JSON。");
         assertThat(response.analysisFactItems())
                 .containsExactly(new ApiAnalysisFact("input", "未识别到 paths，请提供 OpenAPI/Swagger JSON。"));
+        assertThat(response.workflowStatus()).isEqualTo("NEEDS_INPUT");
         assertThat(response.taskGoal()).isEqualTo("先确认 OpenAPI/Swagger JSON 中是否包含 paths。");
         assertThat(response.taskConstraints()).isEqualTo("不要编造接口；缺少 paths 时只提示补充 API 文档输入。");
         assertThat(response.expectedOutput()).isEqualTo("输出风险说明、测试建议和下一步行动。");

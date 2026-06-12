@@ -29,6 +29,7 @@ public class ApiDocAnalyzerService {
                 analysisRole(),
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
+                workflowStatus(parseResponse.endpoints()),
                 taskGoal(reviewPlan),
                 taskConstraints(reviewPlan),
                 expectedOutput(),
@@ -183,6 +184,13 @@ public class ApiDocAnalyzerService {
                 new ApiAnalysisFact("moduleRiskDistribution", moduleRiskSummary(modules)),
                 new ApiAnalysisFact("topPriorityModule", topPriorityModule(reviewPlan)),
                 new ApiAnalysisFact("firstReviewAction", reviewPlan.get(0).action()));
+    }
+
+    private String workflowStatus(List<ApiEndpoint> endpoints) {
+        if (endpoints.isEmpty()) {
+            return "NEEDS_INPUT";
+        }
+        return "READY";
     }
 
     private String taskGoal(List<ApiReviewStep> reviewPlan) {
