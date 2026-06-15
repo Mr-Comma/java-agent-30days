@@ -33,6 +33,7 @@ public class ApiDocAnalyzerService {
                 workflowStatus,
                 workflowStage(workflowStatus),
                 suggestedTool(workflowStatus),
+                reviewPromptTemplate(workflowStatus, reviewPlan),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -210,6 +211,28 @@ public class ApiDocAnalyzerService {
             return "openapi-input-validator";
         }
         return "api-risk-reviewer";
+    }
+
+    private String reviewPromptTemplate(String workflowStatus, List<ApiReviewStep> reviewPlan) {
+        String workflowStage = workflowStage(workflowStatus);
+        String suggestedTool = suggestedTool(workflowStatus);
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool + "；阻塞原因："
+                    + trimTrailingSentenceEnd(blockingReason(workflowStatus)) + "；请先补充有效输入，不要编造接口。";
+        }
+        return reviewPlan.stream()
+                .findFirst()
+                .map(step -> "工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool + "；首个动作：审查 "
+                        + step.module() + " 模块，" + trimTrailingSentenceEnd(step.action()) + "；请输出风险说明、测试建议和下一步行动。")
+                .orElse("工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool
+                        + "；请先确认解析结果，再启动 API 风险审查。");
+    }
+
+    private String trimTrailingSentenceEnd(String text) {
+        if (text.endsWith("。")) {
+            return text.substring(0, text.length() - 1);
+        }
+        return text;
     }
 
     private String recommendedNextAction(String workflowStatus, List<ApiReviewStep> reviewPlan) {
