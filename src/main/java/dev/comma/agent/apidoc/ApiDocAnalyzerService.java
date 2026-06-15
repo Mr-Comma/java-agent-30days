@@ -31,6 +31,7 @@ public class ApiDocAnalyzerService {
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
                 workflowStatus,
+                workflowStage(workflowStatus),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -194,6 +195,13 @@ public class ApiDocAnalyzerService {
             return "NEEDS_INPUT";
         }
         return "READY";
+    }
+
+    private String workflowStage(String workflowStatus) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "INPUT_REQUIRED";
+        }
+        return "REVIEW_READY";
     }
 
     private String recommendedNextAction(String workflowStatus, List<ApiReviewStep> reviewPlan) {
