@@ -13,6 +13,7 @@ public record ApiDocAnalysisResponse(
         String workflowStage,
         String suggestedTool,
         String reviewPromptTemplate,
+        ReviewPromptVariables reviewPromptVariables,
         String blockingReason,
         String recommendedNextAction,
         String taskGoal,

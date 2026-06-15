@@ -34,6 +34,7 @@ public class ApiDocAnalyzerService {
                 workflowStage(workflowStatus),
                 suggestedTool(workflowStatus),
                 reviewPromptTemplate(workflowStatus, reviewPlan),
+                reviewPromptVariables(workflowStatus, reviewPlan),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -214,18 +215,46 @@ public class ApiDocAnalyzerService {
     }
 
     private String reviewPromptTemplate(String workflowStatus, List<ApiReviewStep> reviewPlan) {
-        String workflowStage = workflowStage(workflowStatus);
-        String suggestedTool = suggestedTool(workflowStatus);
+        ReviewPromptVariables variables = reviewPromptVariables(workflowStatus, reviewPlan);
         if ("NEEDS_INPUT".equals(workflowStatus)) {
-            return "工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool + "；阻塞原因："
-                    + trimTrailingSentenceEnd(blockingReason(workflowStatus)) + "；请先补充有效输入，不要编造接口。";
+            return "工作流阶段：" + variables.workflowStage() + "；建议工具：" + variables.suggestedTool() + "；阻塞原因："
+                    + trimTrailingSentenceEnd(variables.blockingReason()) + "；" + variables.expectedOutputInstruction();
+        }
+        if (variables.firstReviewModule() == null) {
+            return "工作流阶段：" + variables.workflowStage() + "；建议工具：" + variables.suggestedTool()
+                    + "；" + variables.expectedOutputInstruction();
+        }
+        return "工作流阶段：" + variables.workflowStage() + "；建议工具：" + variables.suggestedTool() + "；首个动作：审查 "
+                + variables.firstReviewModule() + " 模块，" + trimTrailingSentenceEnd(variables.firstReviewAction()) + "；"
+                + variables.expectedOutputInstruction();
+    }
+
+    private ReviewPromptVariables reviewPromptVariables(String workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return new ReviewPromptVariables(
+                    workflowStage(workflowStatus),
+                    suggestedTool(workflowStatus),
+                    blockingReason(workflowStatus),
+                    null,
+                    null,
+                    "请先补充有效输入，不要编造接口。");
         }
         return reviewPlan.stream()
                 .findFirst()
-                .map(step -> "工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool + "；首个动作：审查 "
-                        + step.module() + " 模块，" + trimTrailingSentenceEnd(step.action()) + "；请输出风险说明、测试建议和下一步行动。")
-                .orElse("工作流阶段：" + workflowStage + "；建议工具：" + suggestedTool
-                        + "；请先确认解析结果，再启动 API 风险审查。");
+                .map(step -> new ReviewPromptVariables(
+                        workflowStage(workflowStatus),
+                        suggestedTool(workflowStatus),
+                        null,
+                        step.module(),
+                        step.action(),
+                        "请输出风险说明、测试建议和下一步行动。"))
+                .orElse(new ReviewPromptVariables(
+                        workflowStage(workflowStatus),
+                        suggestedTool(workflowStatus),
+                        null,
+                        null,
+                        null,
+                        "请先确认解析结果，再启动 API 风险审查。"));
     }
 
     private String trimTrailingSentenceEnd(String text) {
