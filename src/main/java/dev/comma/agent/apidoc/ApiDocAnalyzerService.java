@@ -32,6 +32,7 @@ public class ApiDocAnalyzerService {
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
                 workflowStatus,
                 workflowStage(workflowStatus),
+                suggestedTool(workflowStatus),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -202,6 +203,13 @@ public class ApiDocAnalyzerService {
             return "INPUT_REQUIRED";
         }
         return "REVIEW_READY";
+    }
+
+    private String suggestedTool(String workflowStatus) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "openapi-input-validator";
+        }
+        return "api-risk-reviewer";
     }
 
     private String recommendedNextAction(String workflowStatus, List<ApiReviewStep> reviewPlan) {
