@@ -60,6 +60,11 @@ class ApiDocAnalyzerServiceTest {
                         "请输出风险说明、测试建议和下一步行动。"));
         assertThat(response.reviewPromptPreview())
                 .isEqualTo("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
+        assertThat(response.debugHints())
+                .containsExactly(
+                        "状态：READY，可以进入 API 风险审查。",
+                        "工具：调用 api-risk-reviewer 执行首个审查动作。",
+                        "首个动作：P1 审查 orders 模块，先审查删除接口、权限控制和误删保护。");
         assertThat(response.blockingReason()).isNull();
         assertThat(response.recommendedNextAction())
                 .isEqualTo("下一步执行 P1：审查 orders 模块，先审查删除接口、权限控制和误删保护。");
@@ -155,6 +160,11 @@ class ApiDocAnalyzerServiceTest {
                         "请先补充有效输入，不要编造接口。"));
         assertThat(response.reviewPromptPreview())
                 .isEqualTo("请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。");
+        assertThat(response.debugHints())
+                .containsExactly(
+                        "状态：NEEDS_INPUT，暂不进入风险审查。",
+                        "工具：调用 openapi-input-validator 校验输入。",
+                        "原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         assertThat(response.blockingReason()).isEqualTo("OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         assertThat(response.recommendedNextAction())
                 .isEqualTo("请先补充包含 paths 的 OpenAPI/Swagger JSON，再启动 API 风险审查。");

@@ -37,6 +37,7 @@ public class ApiDocAnalyzerService {
                 reviewPromptTemplate(reviewPromptVariables),
                 reviewPromptVariables,
                 reviewPromptPreview(reviewPromptVariables),
+                debugHints(workflowStatus, reviewPlan),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -286,6 +287,24 @@ public class ApiDocAnalyzerService {
                 .findFirst()
                 .map(step -> "下一步执行 P" + step.priority() + "：审查 " + step.module() + " 模块，" + step.action())
                 .orElse("请先确认解析结果，再启动 API 风险审查。");
+    }
+
+    private List<String> debugHints(String workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return List.of(
+                    "状态：NEEDS_INPUT，暂不进入风险审查。",
+                    "工具：调用 openapi-input-validator 校验输入。",
+                    "原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
+        }
+        return reviewPlan.stream()
+                .findFirst()
+                .map(step -> List.of(
+                        "状态：READY，可以进入 API 风险审查。",
+                        "工具：调用 api-risk-reviewer 执行首个审查动作。",
+                        "首个动作：P" + step.priority() + " 审查 " + step.module() + " 模块，" + step.action()))
+                .orElse(List.of(
+                        "状态：READY，但未生成审查计划。",
+                        "工具：调用 api-risk-reviewer 前先确认解析结果。"));
     }
 
     private String blockingReason(String workflowStatus) {

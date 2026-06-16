@@ -42,7 +42,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
   -d '{"openApiJson":"{\"openapi\":\"3.0.1\",\"paths\":{\"/users\":{\"get\":{\"summary\":\"List users\"},\"post\":{\"summary\":\"Create user\"}}}}"}'
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
 
 缺少 `paths` 或未解析到接口时，可以用下面这个最小请求验证缺输入链路：
 
@@ -60,6 +60,11 @@ curl -X POST http://localhost:8080/api-docs/analyze \
   "workflowStage": "INPUT_REQUIRED",
   "blockingReason": "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
   "suggestedTool": "openapi-input-validator",
+  "debugHints": [
+    "状态：NEEDS_INPUT，暂不进入风险审查。",
+    "工具：调用 openapi-input-validator 校验输入。",
+    "原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"
+  ],
   "reviewPromptVariables": {
     "workflowStage": "INPUT_REQUIRED",
     "suggestedTool": "openapi-input-validator",
