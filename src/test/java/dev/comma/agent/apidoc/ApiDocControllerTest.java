@@ -1,0 +1,45 @@
+package dev.comma.agent.apidoc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+class ApiDocControllerTest {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ApiDocParserService parserService = new ApiDocParserService(objectMapper);
+    private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(
+                    new ApiDocController(parserService, new ApiDocAnalyzerService(parserService)))
+            .build();
+
+    @Test
+    void exposesReviewPromptDebugFieldsFromAnalyzeEndpoint() throws Exception {
+        String openApiJson = """
+                {
+                  "openapi": "3.0.1",
+                  "paths": {
+                    "/orders/{id}": {
+                      "delete": {"summary": "Delete order"}
+                    }
+                  }
+                }
+                """;
+        String requestBody = objectMapper.writeValueAsString(new ApiDocParseRequest(openApiJson));
+
+        mockMvc.perform(post("/api-docs/analyze")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.workflowStatus").value("READY"))
+                .andExpect(jsonPath("$.reviewPromptVariables.suggestedTool").value("api-risk-reviewer"))
+                .andExpect(jsonPath("$.reviewPromptVariables.firstReviewModule").value("orders"))
+                .andExpect(jsonPath("$.reviewPromptPreview")
+                        .value("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"));
+    }
+}
