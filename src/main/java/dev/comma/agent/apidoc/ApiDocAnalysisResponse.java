@@ -14,6 +14,7 @@ public record ApiDocAnalysisResponse(
         String suggestedTool,
         String reviewPromptTemplate,
         ReviewPromptVariables reviewPromptVariables,
+        String reviewPromptPreview,
         String blockingReason,
         String recommendedNextAction,
         String taskGoal,

@@ -23,6 +23,7 @@ public class ApiDocAnalyzerService {
         List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
         List<ApiReviewStep> reviewPlan = reviewPlan(modules);
         String workflowStatus = workflowStatus(parseResponse.endpoints());
+        ReviewPromptVariables reviewPromptVariables = reviewPromptVariables(workflowStatus, reviewPlan);
         return new ApiDocAnalysisResponse(
                 parseResponse.endpointCount(),
                 summary(parseResponse.endpoints(), modules, reviewPlan),
@@ -33,8 +34,9 @@ public class ApiDocAnalyzerService {
                 workflowStatus,
                 workflowStage(workflowStatus),
                 suggestedTool(workflowStatus),
-                reviewPromptTemplate(workflowStatus, reviewPlan),
-                reviewPromptVariables(workflowStatus, reviewPlan),
+                reviewPromptTemplate(reviewPromptVariables),
+                reviewPromptVariables,
+                reviewPromptPreview(reviewPromptVariables),
                 blockingReason(workflowStatus),
                 recommendedNextAction(workflowStatus, reviewPlan),
                 taskGoal(reviewPlan),
@@ -214,9 +216,8 @@ public class ApiDocAnalyzerService {
         return "api-risk-reviewer";
     }
 
-    private String reviewPromptTemplate(String workflowStatus, List<ApiReviewStep> reviewPlan) {
-        ReviewPromptVariables variables = reviewPromptVariables(workflowStatus, reviewPlan);
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private String reviewPromptTemplate(ReviewPromptVariables variables) {
+        if (variables.blockingReason() != null) {
             return "工作流阶段：" + variables.workflowStage() + "；建议工具：" + variables.suggestedTool() + "；阻塞原因："
                     + trimTrailingSentenceEnd(variables.blockingReason()) + "；" + variables.expectedOutputInstruction();
         }
@@ -227,6 +228,19 @@ public class ApiDocAnalyzerService {
         return "工作流阶段：" + variables.workflowStage() + "；建议工具：" + variables.suggestedTool() + "；首个动作：审查 "
                 + variables.firstReviewModule() + " 模块，" + trimTrailingSentenceEnd(variables.firstReviewAction()) + "；"
                 + variables.expectedOutputInstruction();
+    }
+
+    private String reviewPromptPreview(ReviewPromptVariables variables) {
+        if (variables.blockingReason() != null) {
+            return "请调用 " + variables.suggestedTool() + " 处理 " + variables.workflowStage() + " 阶段："
+                    + trimTrailingSentenceEnd(variables.blockingReason()) + "；" + variables.expectedOutputInstruction();
+        }
+        if (variables.firstReviewModule() == null) {
+            return "请调用 " + variables.suggestedTool() + " 处理 " + variables.workflowStage() + " 阶段；"
+                    + variables.expectedOutputInstruction();
+        }
+        return "请调用 " + variables.suggestedTool() + " 审查 " + variables.firstReviewModule() + " 模块："
+                + trimTrailingSentenceEnd(variables.firstReviewAction()) + "；" + variables.expectedOutputInstruction();
     }
 
     private ReviewPromptVariables reviewPromptVariables(String workflowStatus, List<ApiReviewStep> reviewPlan) {
