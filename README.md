@@ -43,3 +43,30 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 ```
 
 `/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
+
+缺少 `paths` 或未解析到接口时，可以用下面这个最小请求验证缺输入链路：
+
+```bash
+curl -X POST http://localhost:8080/api-docs/analyze \
+  -H 'Content-Type: application/json' \
+  -d '{"openApiJson":"{\"openapi\":\"3.0.1\",\"paths\":{}}"}'
+```
+
+关键响应字段会稳定指向输入补全，而不是编造接口：
+
+```json
+{
+  "workflowStatus": "NEEDS_INPUT",
+  "workflowStage": "INPUT_REQUIRED",
+  "blockingReason": "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
+  "suggestedTool": "openapi-input-validator",
+  "reviewPromptVariables": {
+    "workflowStage": "INPUT_REQUIRED",
+    "suggestedTool": "openapi-input-validator",
+    "blockingReason": "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
+    "firstReviewModule": null,
+    "firstReviewAction": null
+  },
+  "reviewPromptPreview": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"
+}
+```
