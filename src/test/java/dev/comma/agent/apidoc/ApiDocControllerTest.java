@@ -1,5 +1,6 @@
 package dev.comma.agent.apidoc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,8 +16,24 @@ class ApiDocControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ApiDocParserService parserService = new ApiDocParserService(objectMapper);
     private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(
-                    new ApiDocController(parserService, new ApiDocAnalyzerService(parserService)))
+                    new ApiDocController(
+                            parserService, new ApiDocAnalyzerService(parserService), new ApiDocDebugSchemaService()))
             .build();
+
+    @Test
+    void exposesApiDocDebugSchemaForFrontendAndAgentRouting() throws Exception {
+        mockMvc.perform(get("/api-docs/debug-schema"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.endpoint").value("/api-docs/analyze"))
+                .andExpect(jsonPath("$.fields[0].name").value("workflowStatus"))
+                .andExpect(jsonPath("$.fields[0].readyMeaning").value("已解析到接口，可进入风险审查"))
+                .andExpect(jsonPath("$.fields[0].needsInputMeaning").value("缺少 paths 或未解析到接口"))
+                .andExpect(jsonPath("$.fields[0].usage").value("作为主路由状态，决定进入审查还是补输入"))
+                .andExpect(jsonPath("$.fields[3].name").value("blockingReason"))
+                .andExpect(jsonPath("$.fields[3].readyMeaning").value("null，没有阻塞原因"))
+                .andExpect(jsonPath("$.fields[6].name").value("reviewPromptPreview"))
+                .andExpect(jsonPath("$.fields[6].usage").value("作为调试预览，不替代结构化变量"));
+    }
 
     @Test
     void exposesInputBlockingDebugFieldsFromAnalyzeEndpoint() throws Exception {

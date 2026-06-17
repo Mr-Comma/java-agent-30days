@@ -40,9 +40,10 @@ curl -X POST http://localhost:8080/api-docs/parse \
 curl -X POST http://localhost:8080/api-docs/analyze \
   -H 'Content-Type: application/json' \
   -d '{"openApiJson":"{\"openapi\":\"3.0.1\",\"paths\":{\"/users\":{\"get\":{\"summary\":\"List users\"},\"post\":{\"summary\":\"Create user\"}}}}"}'
+curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，方便调试面板不解析 README 也能渲染字段说明。
 
 | 字段 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |
 | --- | --- | --- | --- |
