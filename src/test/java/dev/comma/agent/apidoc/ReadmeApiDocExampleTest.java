@@ -11,6 +11,21 @@ import org.junit.jupiter.api.Test;
 class ReadmeApiDocExampleTest {
 
     @Test
+    void documentsReadyDebugResponseFields() throws IOException {
+        String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
+
+        assertThat(readme).contains("解析到接口时，可以用下面这个请求验证可审查链路");
+        assertThat(readme).contains("\"workflowStatus\": \"READY\"");
+        assertThat(readme).contains("\"workflowStage\": \"REVIEW_READY\"");
+        assertThat(readme).contains("\"suggestedTool\": \"api-risk-reviewer\"");
+        assertThat(readme).contains("\"状态：READY，可以进入 API 风险审查。\"");
+        assertThat(readme).contains("\"首个动作：P1 审查 orders 模块，先审查删除接口、权限控制和误删保护。\"");
+        assertThat(readme).contains("\"blockingReason\": null");
+        assertThat(readme).contains("\"firstReviewModule\": \"orders\"");
+        assertThat(readme).contains("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
+    }
+
+    @Test
     void documentsMissingInputDebugResponseFields() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 

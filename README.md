@@ -44,6 +44,37 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 
 `/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
 
+解析到接口时，可以用下面这个请求验证可审查链路：
+
+```bash
+curl -X POST http://localhost:8080/api-docs/analyze \
+  -H 'Content-Type: application/json' \
+  -d '{"openApiJson":"{\"openapi\":\"3.0.1\",\"paths\":{\"/orders/{id}\":{\"delete\":{\"summary\":\"Delete order\"}},\"/users\":{\"get\":{\"summary\":\"List users\"}}}}"}'
+```
+
+关键响应字段会稳定指向首个审查动作，方便前端或 Agent 节点直接路由：
+
+```json
+{
+  "workflowStatus": "READY",
+  "workflowStage": "REVIEW_READY",
+  "suggestedTool": "api-risk-reviewer",
+  "debugHints": [
+    "状态：READY，可以进入 API 风险审查。",
+    "工具：调用 api-risk-reviewer 执行首个审查动作。",
+    "首个动作：P1 审查 orders 模块，先审查删除接口、权限控制和误删保护。"
+  ],
+  "reviewPromptVariables": {
+    "workflowStage": "REVIEW_READY",
+    "suggestedTool": "api-risk-reviewer",
+    "blockingReason": null,
+    "firstReviewModule": "orders",
+    "firstReviewAction": "先审查删除接口、权限控制和误删保护。"
+  },
+  "reviewPromptPreview": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"
+}
+```
+
 缺少 `paths` 或未解析到接口时，可以用下面这个最小请求验证缺输入链路：
 
 ```bash
