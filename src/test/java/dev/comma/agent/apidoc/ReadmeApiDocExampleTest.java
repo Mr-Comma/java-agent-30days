@@ -22,6 +22,22 @@ class ReadmeApiDocExampleTest {
     }
 
     @Test
+    void documentsDebugSchemaResponseExample() throws IOException {
+        String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
+
+        assertThat(readme).contains("`debug-schema` 的响应结构稳定面向前端和 Agent 编排层");
+        assertThat(readme).contains("\"endpoint\": \"/api-docs/analyze\"");
+        assertThat(readme).contains("\"fields\": [");
+        assertThat(readme).contains("\"name\": \"workflowStatus\"");
+        assertThat(readme).contains("\"readyMeaning\": \"已解析到接口，可进入风险审查\"");
+        assertThat(readme).contains("\"needsInputMeaning\": \"缺少 paths 或未解析到接口\"");
+        assertThat(readme).contains("\"usage\": \"作为主路由状态，决定进入审查还是补输入\"");
+        assertThat(readme).contains("\"name\": \"reviewPromptPreview\"");
+        assertThat(readme).contains("\"usage\": \"作为调试预览，不替代结构化变量\"");
+        assertThat(readme).contains("完整字段清单如下");
+    }
+
+    @Test
     void documentsReadyDebugResponseFields() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
