@@ -44,6 +44,16 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 
 `/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。
 
+| 字段 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |
+| --- | --- | --- | --- |
+| `workflowStatus` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |
+| `workflowStage` | `REVIEW_READY`，审查节点可执行 | `INPUT_REQUIRED`，输入校验节点可执行 | 显示当前工作流阶段，便于调试面板分组 |
+| `suggestedTool` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |
+| `blockingReason` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |
+| `debugHints` | 展示状态、工具和首个审查动作 | 展示状态、工具和缺输入原因 | 给人类调试面板直接展示 |
+| `reviewPromptVariables` | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |
+| `reviewPromptPreview` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |
+
 解析到接口时，可以用下面这个请求验证可审查链路：
 
 ```bash

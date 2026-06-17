@@ -11,6 +11,17 @@ import org.junit.jupiter.api.Test;
 class ReadmeApiDocExampleTest {
 
     @Test
+    void documentsDebugFieldTable() throws IOException {
+        String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
+
+        assertThat(readme).contains("| 字段 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
+        assertThat(readme).contains("| `workflowStatus` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
+        assertThat(readme).contains("| `suggestedTool` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
+        assertThat(readme).contains("| `blockingReason` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
+        assertThat(readme).contains("| `reviewPromptPreview` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
+    }
+
+    @Test
     void documentsReadyDebugResponseFields() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
