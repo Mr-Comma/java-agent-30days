@@ -9,6 +9,7 @@ public class ApiDocDebugSchemaService {
     public ApiDocDebugSchemaResponse schema() {
         return new ApiDocDebugSchemaResponse(
                 "/api-docs/analyze",
+                "v1",
                 List.of(
                         new ApiDocDebugField(
                                 "workflowStatus",

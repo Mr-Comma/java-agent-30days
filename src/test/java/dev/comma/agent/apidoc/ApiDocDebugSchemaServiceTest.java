@@ -14,6 +14,7 @@ class ApiDocDebugSchemaServiceTest {
         ApiDocDebugSchemaResponse response = service.schema();
 
         assertThat(response.endpoint()).isEqualTo("/api-docs/analyze");
+        assertThat(response.schemaVersion()).isEqualTo("v1");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::name)
                 .containsExactly(

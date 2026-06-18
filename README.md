@@ -50,6 +50,7 @@ curl http://localhost:8080/api-docs/debug-schema
 ```json
 {
   "endpoint": "/api-docs/analyze",
+  "schemaVersion": "v1",
   "fields": [
     {
       "name": "workflowStatus",
@@ -66,6 +67,8 @@ curl http://localhost:8080/api-docs/debug-schema
   ]
 }
 ```
+
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。
 
 完整字段清单如下：
 
