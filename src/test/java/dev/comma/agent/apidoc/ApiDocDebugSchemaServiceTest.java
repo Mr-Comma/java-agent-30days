@@ -15,6 +15,7 @@ class ApiDocDebugSchemaServiceTest {
 
         assertThat(response.endpoint()).isEqualTo("/api-docs/analyze");
         assertThat(response.schemaVersion()).isEqualTo("v1");
+        assertThat(response.contractOwner()).isEqualTo("api-docs-agent");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::name)
                 .containsExactly(

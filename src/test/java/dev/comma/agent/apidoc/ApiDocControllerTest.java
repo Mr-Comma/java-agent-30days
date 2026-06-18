@@ -26,6 +26,7 @@ class ApiDocControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.endpoint").value("/api-docs/analyze"))
                 .andExpect(jsonPath("$.schemaVersion").value("v1"))
+                .andExpect(jsonPath("$.contractOwner").value("api-docs-agent"))
                 .andExpect(jsonPath("$.fields[0].name").value("workflowStatus"))
                 .andExpect(jsonPath("$.fields[0].readyMeaning").value("已解析到接口，可进入风险审查"))
                 .andExpect(jsonPath("$.fields[0].needsInputMeaning").value("缺少 paths 或未解析到接口"))

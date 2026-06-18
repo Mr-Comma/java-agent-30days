@@ -28,6 +28,8 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("`debug-schema` 的响应结构稳定面向前端和 Agent 编排层");
         assertThat(readme).contains("\"endpoint\": \"/api-docs/analyze\"");
         assertThat(readme).contains("\"schemaVersion\": \"v1\"");
+        assertThat(readme).contains("\"contractOwner\": \"api-docs-agent\"");
+        assertThat(readme).contains("`contractOwner` 标识这份契约由 API 文档助手维护");
         assertThat(readme).contains("\"fields\": [");
         assertThat(readme).contains("\"name\": \"workflowStatus\"");
         assertThat(readme).contains("\"readyMeaning\": \"已解析到接口，可进入风险审查\"");

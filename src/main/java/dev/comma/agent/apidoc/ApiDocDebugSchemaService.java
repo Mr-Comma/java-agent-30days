@@ -10,6 +10,7 @@ public class ApiDocDebugSchemaService {
         return new ApiDocDebugSchemaResponse(
                 "/api-docs/analyze",
                 "v1",
+                "api-docs-agent",
                 List.of(
                         new ApiDocDebugField(
                                 "workflowStatus",
