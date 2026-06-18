@@ -26,6 +26,12 @@ class ApiDocDebugSchemaServiceTest {
                         "debugHints",
                         "reviewPromptVariables",
                         "reviewPromptPreview");
+        assertThat(response.fields())
+                .extracting(ApiDocDebugField::jsonType)
+                .containsExactly("string", "string", "string", "string|null", "array<string>", "object", "string");
+        assertThat(response.fields())
+                .extracting(ApiDocDebugField::required)
+                .containsExactly(true, true, true, false, true, true, true);
     }
 
     @Test
@@ -35,18 +41,24 @@ class ApiDocDebugSchemaServiceTest {
         assertThat(fields.get(0))
                 .isEqualTo(new ApiDocDebugField(
                         "workflowStatus",
+                        "string",
+                        true,
                         "已解析到接口，可进入风险审查",
                         "缺少 paths 或未解析到接口",
                         "作为主路由状态，决定进入审查还是补输入"));
         assertThat(fields.get(3))
                 .isEqualTo(new ApiDocDebugField(
                         "blockingReason",
+                        "string|null",
+                        false,
                         "null，没有阻塞原因",
                         "返回缺输入原因",
                         "展示阻塞提示，避免编造接口"));
         assertThat(fields.get(6))
                 .isEqualTo(new ApiDocDebugField(
                         "reviewPromptPreview",
+                        "string",
+                        true,
                         "生成可执行的审查请求",
                         "生成补输入请求",
                         "作为调试预览，不替代结构化变量"));

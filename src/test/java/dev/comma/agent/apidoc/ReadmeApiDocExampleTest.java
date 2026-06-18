@@ -32,11 +32,14 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("`contractOwner` 标识这份契约由 API 文档助手维护");
         assertThat(readme).contains("\"fields\": [");
         assertThat(readme).contains("\"name\": \"workflowStatus\"");
+        assertThat(readme).contains("\"jsonType\": \"string\"");
+        assertThat(readme).contains("\"required\": true");
         assertThat(readme).contains("\"readyMeaning\": \"已解析到接口，可进入风险审查\"");
         assertThat(readme).contains("\"needsInputMeaning\": \"缺少 paths 或未解析到接口\"");
         assertThat(readme).contains("\"usage\": \"作为主路由状态，决定进入审查还是补输入\"");
         assertThat(readme).contains("\"name\": \"reviewPromptPreview\"");
         assertThat(readme).contains("\"usage\": \"作为调试预览，不替代结构化变量\"");
+        assertThat(readme).contains("`jsonType` 和 `required` 让调试面板可以不用硬编码就渲染字段类型和必填提示。");
         assertThat(readme).contains("完整字段清单如下");
     }
 
