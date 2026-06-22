@@ -7,6 +7,7 @@ public record ApiDocDebugField(
         String readyMeaning,
         String needsInputMeaning,
         String usage,
+        int displayOrder,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
