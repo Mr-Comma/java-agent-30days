@@ -38,15 +38,17 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"needsInputMeaning\": \"缺少 paths 或未解析到接口\"");
         assertThat(readme).contains("\"usage\": \"作为主路由状态，决定进入审查还是补输入\"");
         assertThat(readme).contains("\"displayOrder\": 10");
+        assertThat(readme).contains("\"category\": \"routing\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.workflowStatus\"");
         assertThat(readme).contains("\"readyExampleValue\": \"READY\"");
         assertThat(readme).contains("\"needsInputExampleValue\": \"NEEDS_INPUT\"");
         assertThat(readme).contains("\"name\": \"reviewPromptPreview\"");
         assertThat(readme).contains("\"usage\": \"作为调试预览，不替代结构化变量\"");
+        assertThat(readme).contains("\"category\": \"prompt\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.reviewPromptPreview\"");
         assertThat(readme).contains("\"readyExampleValue\": \"请调用 api-risk-reviewer 审查 orders 模块");
         assertThat(readme).contains("\"needsInputExampleValue\": \"请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段");
-        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、来源定位和双路径最小样例。");
+        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、来源定位和双路径最小样例。");
         assertThat(readme).contains("完整字段清单如下");
     }
 
