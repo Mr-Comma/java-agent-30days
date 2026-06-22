@@ -59,7 +59,8 @@ curl http://localhost:8080/api-docs/debug-schema
       "required": true,
       "readyMeaning": "已解析到接口，可进入风险审查",
       "needsInputMeaning": "缺少 paths 或未解析到接口",
-      "usage": "作为主路由状态，决定进入审查还是补输入"
+      "usage": "作为主路由状态，决定进入审查还是补输入",
+      "source": "ApiDocAnalyzerService.workflowStatus"
     },
     {
       "name": "reviewPromptPreview",
@@ -67,13 +68,14 @@ curl http://localhost:8080/api-docs/debug-schema
       "required": true,
       "readyMeaning": "生成可执行的审查请求",
       "needsInputMeaning": "生成补输入请求",
-      "usage": "作为调试预览，不替代结构化变量"
+      "usage": "作为调试预览，不替代结构化变量",
+      "source": "ApiDocAnalyzerService.reviewPromptPreview"
     }
   ]
 }
 ```
 
-`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType` 和 `required` 让调试面板可以不用硬编码就渲染字段类型和必填提示。
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required` 和 `source` 让调试面板可以不用硬编码就渲染字段类型、必填提示和来源定位。
 
 完整字段清单如下：
 

@@ -33,12 +33,15 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.fields[0].readyMeaning").value("已解析到接口，可进入风险审查"))
                 .andExpect(jsonPath("$.fields[0].needsInputMeaning").value("缺少 paths 或未解析到接口"))
                 .andExpect(jsonPath("$.fields[0].usage").value("作为主路由状态，决定进入审查还是补输入"))
+                .andExpect(jsonPath("$.fields[0].source").value("ApiDocAnalyzerService.workflowStatus"))
                 .andExpect(jsonPath("$.fields[3].name").value("blockingReason"))
                 .andExpect(jsonPath("$.fields[3].jsonType").value("string|null"))
                 .andExpect(jsonPath("$.fields[3].required").value(false))
                 .andExpect(jsonPath("$.fields[3].readyMeaning").value("null，没有阻塞原因"))
+                .andExpect(jsonPath("$.fields[3].source").value("ApiDocAnalyzerService.blockingReason"))
                 .andExpect(jsonPath("$.fields[6].name").value("reviewPromptPreview"))
-                .andExpect(jsonPath("$.fields[6].usage").value("作为调试预览，不替代结构化变量"));
+                .andExpect(jsonPath("$.fields[6].usage").value("作为调试预览，不替代结构化变量"))
+                .andExpect(jsonPath("$.fields[6].source").value("ApiDocAnalyzerService.reviewPromptPreview"));
     }
 
     @Test

@@ -32,6 +32,16 @@ class ApiDocDebugSchemaServiceTest {
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::required)
                 .containsExactly(true, true, true, false, true, true, true);
+        assertThat(response.fields())
+                .extracting(ApiDocDebugField::source)
+                .containsExactly(
+                        "ApiDocAnalyzerService.workflowStatus",
+                        "ApiDocAnalyzerService.workflowStage",
+                        "ApiDocAnalyzerService.suggestedTool",
+                        "ApiDocAnalyzerService.blockingReason",
+                        "ApiDocAnalyzerService.debugHints",
+                        "ApiDocAnalyzerService.reviewPromptVariables",
+                        "ApiDocAnalyzerService.reviewPromptPreview");
     }
 
     @Test
@@ -45,7 +55,8 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "已解析到接口，可进入风险审查",
                         "缺少 paths 或未解析到接口",
-                        "作为主路由状态，决定进入审查还是补输入"));
+                        "作为主路由状态，决定进入审查还是补输入",
+                        "ApiDocAnalyzerService.workflowStatus"));
         assertThat(fields.get(3))
                 .isEqualTo(new ApiDocDebugField(
                         "blockingReason",
@@ -53,7 +64,8 @@ class ApiDocDebugSchemaServiceTest {
                         false,
                         "null，没有阻塞原因",
                         "返回缺输入原因",
-                        "展示阻塞提示，避免编造接口"));
+                        "展示阻塞提示，避免编造接口",
+                        "ApiDocAnalyzerService.blockingReason"));
         assertThat(fields.get(6))
                 .isEqualTo(new ApiDocDebugField(
                         "reviewPromptPreview",
@@ -61,6 +73,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "生成可执行的审查请求",
                         "生成补输入请求",
-                        "作为调试预览，不替代结构化变量"));
+                        "作为调试预览，不替代结构化变量",
+                        "ApiDocAnalyzerService.reviewPromptPreview"));
     }
 }
