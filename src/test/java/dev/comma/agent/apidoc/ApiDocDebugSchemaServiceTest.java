@@ -2,6 +2,7 @@ package dev.comma.agent.apidoc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -44,18 +45,25 @@ class ApiDocDebugSchemaServiceTest {
                         "ApiDocAnalyzerService.reviewPromptVariables",
                         "ApiDocAnalyzerService.reviewPromptPreview");
         assertThat(response.fields())
-                .extracting(ApiDocDebugField::exampleValue)
+                .extracting(ApiDocDebugField::readyExampleValue)
                 .containsExactly(
                         "READY",
                         "REVIEW_READY",
                         "api-risk-reviewer",
                         null,
                         List.of("状态：READY，可以进入 API 风险审查。"),
-                        Map.of(
-                                "workflowStage", "REVIEW_READY",
-                                "suggestedTool", "api-risk-reviewer",
-                                "firstReviewModule", "orders"),
+                        readyReviewPromptVariablesExample(),
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
+        assertThat(response.fields())
+                .extracting(ApiDocDebugField::needsInputExampleValue)
+                .containsExactly(
+                        "NEEDS_INPUT",
+                        "INPUT_REQUIRED",
+                        "openapi-input-validator",
+                        "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
+                        List.of("状态：NEEDS_INPUT，暂不进入风险审查。"),
+                        needsInputReviewPromptVariablesExample(),
+                        "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。");
     }
 
     @Test
@@ -71,7 +79,8 @@ class ApiDocDebugSchemaServiceTest {
                         "缺少 paths 或未解析到接口",
                         "作为主路由状态，决定进入审查还是补输入",
                         "ApiDocAnalyzerService.workflowStatus",
-                        "READY"));
+                        "READY",
+                        "NEEDS_INPUT"));
         assertThat(fields.get(3))
                 .isEqualTo(new ApiDocDebugField(
                         "blockingReason",
@@ -81,7 +90,8 @@ class ApiDocDebugSchemaServiceTest {
                         "返回缺输入原因",
                         "展示阻塞提示，避免编造接口",
                         "ApiDocAnalyzerService.blockingReason",
-                        null));
+                        null,
+                        "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
         assertThat(fields.get(6))
                 .isEqualTo(new ApiDocDebugField(
                         "reviewPromptPreview",
@@ -91,6 +101,27 @@ class ApiDocDebugSchemaServiceTest {
                         "生成补输入请求",
                         "作为调试预览，不替代结构化变量",
                         "ApiDocAnalyzerService.reviewPromptPreview",
-                        "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"));
+                        "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
+                        "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
+    }
+
+    private Map<String, Object> readyReviewPromptVariablesExample() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("workflowStage", "REVIEW_READY");
+        values.put("suggestedTool", "api-risk-reviewer");
+        values.put("blockingReason", null);
+        values.put("firstReviewModule", "orders");
+        values.put("firstReviewAction", "先审查删除接口、权限控制和误删保护。");
+        return values;
+    }
+
+    private Map<String, Object> needsInputReviewPromptVariablesExample() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("workflowStage", "INPUT_REQUIRED");
+        values.put("suggestedTool", "openapi-input-validator");
+        values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
+        values.put("firstReviewModule", null);
+        values.put("firstReviewAction", null);
+        return values;
     }
 }

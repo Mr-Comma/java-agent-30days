@@ -34,20 +34,26 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.fields[0].needsInputMeaning").value("缺少 paths 或未解析到接口"))
                 .andExpect(jsonPath("$.fields[0].usage").value("作为主路由状态，决定进入审查还是补输入"))
                 .andExpect(jsonPath("$.fields[0].source").value("ApiDocAnalyzerService.workflowStatus"))
-                .andExpect(jsonPath("$.fields[0].exampleValue").value("READY"))
+                .andExpect(jsonPath("$.fields[0].readyExampleValue").value("READY"))
+                .andExpect(jsonPath("$.fields[0].needsInputExampleValue").value("NEEDS_INPUT"))
                 .andExpect(jsonPath("$.fields[3].name").value("blockingReason"))
                 .andExpect(jsonPath("$.fields[3].jsonType").value("string|null"))
                 .andExpect(jsonPath("$.fields[3].required").value(false))
                 .andExpect(jsonPath("$.fields[3].readyMeaning").value("null，没有阻塞原因"))
                 .andExpect(jsonPath("$.fields[3].source").value("ApiDocAnalyzerService.blockingReason"))
-                .andExpect(jsonPath("$.fields[3].exampleValue").doesNotExist())
-                .andExpect(jsonPath("$.fields[5].exampleValue.workflowStage").value("REVIEW_READY"))
-                .andExpect(jsonPath("$.fields[5].exampleValue.firstReviewModule").value("orders"))
+                .andExpect(jsonPath("$.fields[3].readyExampleValue").doesNotExist())
+                .andExpect(jsonPath("$.fields[3].needsInputExampleValue").value("OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"))
+                .andExpect(jsonPath("$.fields[5].readyExampleValue.workflowStage").value("REVIEW_READY"))
+                .andExpect(jsonPath("$.fields[5].readyExampleValue.firstReviewModule").value("orders"))
+                .andExpect(jsonPath("$.fields[5].needsInputExampleValue.workflowStage").value("INPUT_REQUIRED"))
+                .andExpect(jsonPath("$.fields[5].needsInputExampleValue.firstReviewModule").doesNotExist())
                 .andExpect(jsonPath("$.fields[6].name").value("reviewPromptPreview"))
                 .andExpect(jsonPath("$.fields[6].usage").value("作为调试预览，不替代结构化变量"))
                 .andExpect(jsonPath("$.fields[6].source").value("ApiDocAnalyzerService.reviewPromptPreview"))
-                .andExpect(jsonPath("$.fields[6].exampleValue")
-                        .value("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"));
+                .andExpect(jsonPath("$.fields[6].readyExampleValue")
+                        .value("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"))
+                .andExpect(jsonPath("$.fields[6].needsInputExampleValue")
+                        .value("请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
     }
 
     @Test

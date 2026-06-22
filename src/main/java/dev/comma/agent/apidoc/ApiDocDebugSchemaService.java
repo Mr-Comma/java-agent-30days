@@ -1,5 +1,6 @@
 package dev.comma.agent.apidoc;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,8 @@ public class ApiDocDebugSchemaService {
                                 "缺少 paths 或未解析到接口",
                                 "作为主路由状态，决定进入审查还是补输入",
                                 "ApiDocAnalyzerService.workflowStatus",
-                                "READY"),
+                                "READY",
+                                "NEEDS_INPUT"),
                         new ApiDocDebugField(
                                 "workflowStage",
                                 "string",
@@ -30,7 +32,8 @@ public class ApiDocDebugSchemaService {
                                 "INPUT_REQUIRED，输入校验节点可执行",
                                 "显示当前工作流阶段，便于调试面板分组",
                                 "ApiDocAnalyzerService.workflowStage",
-                                "REVIEW_READY"),
+                                "REVIEW_READY",
+                                "INPUT_REQUIRED"),
                         new ApiDocDebugField(
                                 "suggestedTool",
                                 "string",
@@ -39,7 +42,8 @@ public class ApiDocDebugSchemaService {
                                 "推荐调用 openapi-input-validator",
                                 "映射到下一步工具或 Agent 节点",
                                 "ApiDocAnalyzerService.suggestedTool",
-                                "api-risk-reviewer"),
+                                "api-risk-reviewer",
+                                "openapi-input-validator"),
                         new ApiDocDebugField(
                                 "blockingReason",
                                 "string|null",
@@ -48,7 +52,8 @@ public class ApiDocDebugSchemaService {
                                 "返回缺输入原因",
                                 "展示阻塞提示，避免编造接口",
                                 "ApiDocAnalyzerService.blockingReason",
-                                null),
+                                null,
+                                "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"),
                         new ApiDocDebugField(
                                 "debugHints",
                                 "array<string>",
@@ -57,7 +62,8 @@ public class ApiDocDebugSchemaService {
                                 "展示状态、工具和缺输入原因",
                                 "给人类调试面板直接展示",
                                 "ApiDocAnalyzerService.debugHints",
-                                List.of("状态：READY，可以进入 API 风险审查。")),
+                                List.of("状态：READY，可以进入 API 风险审查。"),
+                                List.of("状态：NEEDS_INPUT，暂不进入风险审查。")),
                         new ApiDocDebugField(
                                 "reviewPromptVariables",
                                 "object",
@@ -66,10 +72,8 @@ public class ApiDocDebugSchemaService {
                                 "首个模块/动作保持 null",
                                 "给 PromptTemplate 或工作流节点传参",
                                 "ApiDocAnalyzerService.reviewPromptVariables",
-                                Map.of(
-                                        "workflowStage", "REVIEW_READY",
-                                        "suggestedTool", "api-risk-reviewer",
-                                        "firstReviewModule", "orders")),
+                                readyReviewPromptVariablesExample(),
+                                needsInputReviewPromptVariablesExample()),
                         new ApiDocDebugField(
                                 "reviewPromptPreview",
                                 "string",
@@ -78,6 +82,27 @@ public class ApiDocDebugSchemaService {
                                 "生成补输入请求",
                                 "作为调试预览，不替代结构化变量",
                                 "ApiDocAnalyzerService.reviewPromptPreview",
-                                "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。")));
+                                "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
+                                "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。")));
+    }
+
+    private Map<String, Object> readyReviewPromptVariablesExample() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("workflowStage", "REVIEW_READY");
+        values.put("suggestedTool", "api-risk-reviewer");
+        values.put("blockingReason", null);
+        values.put("firstReviewModule", "orders");
+        values.put("firstReviewAction", "先审查删除接口、权限控制和误删保护。");
+        return values;
+    }
+
+    private Map<String, Object> needsInputReviewPromptVariablesExample() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("workflowStage", "INPUT_REQUIRED");
+        values.put("suggestedTool", "openapi-input-validator");
+        values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
+        values.put("firstReviewModule", null);
+        values.put("firstReviewAction", null);
+        return values;
     }
 }

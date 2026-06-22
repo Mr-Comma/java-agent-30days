@@ -61,7 +61,8 @@ curl http://localhost:8080/api-docs/debug-schema
       "needsInputMeaning": "缺少 paths 或未解析到接口",
       "usage": "作为主路由状态，决定进入审查还是补输入",
       "source": "ApiDocAnalyzerService.workflowStatus",
-      "exampleValue": "READY"
+      "readyExampleValue": "READY",
+      "needsInputExampleValue": "NEEDS_INPUT"
     },
     {
       "name": "reviewPromptPreview",
@@ -71,13 +72,14 @@ curl http://localhost:8080/api-docs/debug-schema
       "needsInputMeaning": "生成补输入请求",
       "usage": "作为调试预览，不替代结构化变量",
       "source": "ApiDocAnalyzerService.reviewPromptPreview",
-      "exampleValue": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"
+      "readyExampleValue": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
+      "needsInputExampleValue": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"
     }
   ]
 }
 ```
 
-`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`source` 和 `exampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、来源定位和最小样例。
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、来源定位和双路径最小样例。
 
 完整字段清单如下：
 
