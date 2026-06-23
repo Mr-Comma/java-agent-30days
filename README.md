@@ -63,6 +63,7 @@ curl http://localhost:8080/api-docs/debug-schema
       "displayOrder": 10,
       "category": "routing",
       "uiLabel": "工作流状态",
+      "uiDescription": "判断 OpenAPI 输入是否已具备进入风险审查的条件。",
       "source": "ApiDocAnalyzerService.workflowStatus",
       "readyExampleValue": "READY",
       "needsInputExampleValue": "NEEDS_INPUT"
@@ -77,6 +78,7 @@ curl http://localhost:8080/api-docs/debug-schema
       "displayOrder": 70,
       "category": "prompt",
       "uiLabel": "审查 Prompt 预览",
+      "uiDescription": "根据结构化变量渲染出的可执行审查请求预览。",
       "source": "ApiDocAnalyzerService.reviewPromptPreview",
       "readyExampleValue": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
       "needsInputExampleValue": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"
@@ -85,7 +87,7 @@ curl http://localhost:8080/api-docs/debug-schema
 }
 ```
 
-`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、来源定位和双路径最小样例。
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、来源定位和双路径最小样例。
 
 完整字段清单如下：
 

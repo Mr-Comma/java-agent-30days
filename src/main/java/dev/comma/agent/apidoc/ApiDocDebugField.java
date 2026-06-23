@@ -10,6 +10,7 @@ public record ApiDocDebugField(
         int displayOrder,
         String category,
         String uiLabel,
+        String uiDescription,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {

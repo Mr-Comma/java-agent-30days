@@ -58,6 +58,16 @@ class ApiDocDebugSchemaServiceTest {
                         "审查 Prompt 变量",
                         "审查 Prompt 预览");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::uiDescription)
+                .containsExactly(
+                        "判断 OpenAPI 输入是否已具备进入风险审查的条件。",
+                        "标识当前应进入审查节点还是输入补全节点。",
+                        "给出下一步建议调用的 Agent 工具或工作流节点。",
+                        "说明当前阻塞原因；READY 时为空。",
+                        "给调试面板展示的人类可读运行提示。",
+                        "传给 PromptTemplate 或工作流节点的结构化变量。",
+                        "根据结构化变量渲染出的可执行审查请求预览。");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -104,6 +114,7 @@ class ApiDocDebugSchemaServiceTest {
                         10,
                         "routing",
                         "工作流状态",
+                        "判断 OpenAPI 输入是否已具备进入风险审查的条件。",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -118,6 +129,7 @@ class ApiDocDebugSchemaServiceTest {
                         40,
                         "routing",
                         "阻塞原因",
+                        "说明当前阻塞原因；READY 时为空。",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -132,6 +144,7 @@ class ApiDocDebugSchemaServiceTest {
                         70,
                         "prompt",
                         "审查 Prompt 预览",
+                        "根据结构化变量渲染出的可执行审查请求预览。",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
