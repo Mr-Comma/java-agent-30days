@@ -14,11 +14,12 @@ class ReadmeApiDocExampleTest {
     void documentsDebugFieldTable() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
-        assertThat(readme).contains("| 字段 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
-        assertThat(readme).contains("| `workflowStatus` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
-        assertThat(readme).contains("| `suggestedTool` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
-        assertThat(readme).contains("| `blockingReason` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
-        assertThat(readme).contains("| `reviewPromptPreview` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
+        assertThat(readme).contains("| 字段 | 顺序 | 分组 | 中文标题 | 可见性 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
+        assertThat(readme).contains("| `workflowStatus` | 10 | `routing` | 工作流状态 | `summary` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
+        assertThat(readme).contains("| `suggestedTool` | 30 | `routing` | 建议工具 | `summary` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
+        assertThat(readme).contains("| `blockingReason` | 40 | `routing` | 阻塞原因 | `summary` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
+        assertThat(readme).contains("| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | `detail` | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |");
+        assertThat(readme).contains("| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | `summary` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
     }
 
     @Test
