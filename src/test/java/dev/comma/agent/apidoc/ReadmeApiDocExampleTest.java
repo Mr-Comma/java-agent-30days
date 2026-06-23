@@ -41,6 +41,7 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"category\": \"routing\"");
         assertThat(readme).contains("\"uiLabel\": \"工作流状态\"");
         assertThat(readme).contains("\"uiDescription\": \"判断 OpenAPI 输入是否已具备进入风险审查的条件。\"");
+        assertThat(readme).contains("\"visibility\": \"summary\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.workflowStatus\"");
         assertThat(readme).contains("\"readyExampleValue\": \"READY\"");
         assertThat(readme).contains("\"needsInputExampleValue\": \"NEEDS_INPUT\"");
@@ -49,10 +50,14 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"category\": \"prompt\"");
         assertThat(readme).contains("\"uiLabel\": \"审查 Prompt 预览\"");
         assertThat(readme).contains("\"uiDescription\": \"根据结构化变量渲染出的可执行审查请求预览。\"");
+        assertThat(readme).contains("reviewPromptVariables");
+        assertThat(readme).contains("\"visibility\": \"detail\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.reviewPromptPreview\"");
         assertThat(readme).contains("\"readyExampleValue\": \"请调用 api-risk-reviewer 审查 orders 模块");
         assertThat(readme).contains("\"needsInputExampleValue\": \"请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段");
-        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、来源定位和双路径最小样例。");
+        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、来源定位和双路径最小样例。");
+        assertThat(readme).contains("其中 `visibility` 用于给调试面板一个默认展示建议");
+        assertThat(readme).contains("`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区");
         assertThat(readme).contains("完整字段清单如下");
     }
 

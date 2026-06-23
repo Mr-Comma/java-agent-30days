@@ -68,6 +68,9 @@ class ApiDocDebugSchemaServiceTest {
                         "传给 PromptTemplate 或工作流节点的结构化变量。",
                         "根据结构化变量渲染出的可执行审查请求预览。");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::visibility)
+                .containsExactly("summary", "summary", "summary", "summary", "summary", "detail", "summary");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -115,6 +118,7 @@ class ApiDocDebugSchemaServiceTest {
                         "routing",
                         "工作流状态",
                         "判断 OpenAPI 输入是否已具备进入风险审查的条件。",
+                        "summary",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -130,6 +134,7 @@ class ApiDocDebugSchemaServiceTest {
                         "routing",
                         "阻塞原因",
                         "说明当前阻塞原因；READY 时为空。",
+                        "summary",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -145,6 +150,7 @@ class ApiDocDebugSchemaServiceTest {
                         "prompt",
                         "审查 Prompt 预览",
                         "根据结构化变量渲染出的可执行审查请求预览。",
+                        "summary",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
