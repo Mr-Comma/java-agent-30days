@@ -14,12 +14,12 @@ class ReadmeApiDocExampleTest {
     void documentsDebugFieldTable() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
-        assertThat(readme).contains("| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
-        assertThat(readme).contains("| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
-        assertThat(readme).contains("| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
-        assertThat(readme).contains("| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
-        assertThat(readme).contains("| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |");
-        assertThat(readme).contains("| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
+        assertThat(readme).contains("| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | 渲染类型 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
+        assertThat(readme).contains("| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | `badge` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
+        assertThat(readme).contains("| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | `tool-link` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
+        assertThat(readme).contains("| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `text` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
+        assertThat(readme).contains("| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | `json` | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |");
+        assertThat(readme).contains("| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | `prompt-preview` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
     }
 
     @Test
@@ -43,6 +43,7 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"uiLabel\": \"工作流状态\"");
         assertThat(readme).contains("\"uiDescription\": \"判断 OpenAPI 输入是否已具备进入风险审查的条件。\"");
         assertThat(readme).contains("\"visibility\": \"summary\"");
+        assertThat(readme).contains("\"renderType\": \"badge\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.workflowStatus\"");
         assertThat(readme).contains("\"readyExampleValue\": \"READY\"");
         assertThat(readme).contains("\"needsInputExampleValue\": \"NEEDS_INPUT\"");
@@ -51,12 +52,13 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"category\": \"prompt\"");
         assertThat(readme).contains("\"uiLabel\": \"审查 Prompt 预览\"");
         assertThat(readme).contains("\"uiDescription\": \"根据结构化变量渲染出的可执行审查请求预览。\"");
+        assertThat(readme).contains("\"renderType\": \"prompt-preview\"");
         assertThat(readme).contains("reviewPromptVariables");
         assertThat(readme).contains("\"visibility\": \"detail\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.reviewPromptPreview\"");
         assertThat(readme).contains("\"readyExampleValue\": \"请调用 api-risk-reviewer 审查 orders 模块");
         assertThat(readme).contains("\"needsInputExampleValue\": \"请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段");
-        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、来源定位和双路径最小样例。");
+        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、来源定位和双路径最小样例。");
         assertThat(readme).contains("其中 `visibility` 用于给调试面板一个默认展示建议");
         assertThat(readme).contains("`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区");
         assertThat(readme).contains("完整字段清单如下");

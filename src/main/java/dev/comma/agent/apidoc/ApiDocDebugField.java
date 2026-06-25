@@ -12,6 +12,7 @@ public record ApiDocDebugField(
         String uiLabel,
         String uiDescription,
         String visibility,
+        String renderType,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
