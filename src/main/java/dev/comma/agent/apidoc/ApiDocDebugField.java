@@ -13,6 +13,7 @@ public record ApiDocDebugField(
         String uiDescription,
         String visibility,
         String renderType,
+        boolean copyable,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
