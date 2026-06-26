@@ -17,6 +17,7 @@ public record ApiDocDebugField(
         String interactionHint,
         String agentAction,
         String targetNode,
+        String nodeInputPath,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
