@@ -15,6 +15,7 @@ public record ApiDocDebugField(
         String renderType,
         boolean copyable,
         String interactionHint,
+        String agentAction,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {

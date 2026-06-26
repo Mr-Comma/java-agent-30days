@@ -87,6 +87,16 @@ class ApiDocDebugSchemaServiceTest {
                         "展开查看结构化 Prompt 变量",
                         "复制 Prompt 预览给 Agent 节点");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::agentAction)
+                .containsExactly(
+                        "route-by-status",
+                        "branch-by-stage",
+                        "invoke-suggested-tool",
+                        "collect-missing-input",
+                        "show-human-hints",
+                        "bind-prompt-variables",
+                        "copy-prompt-preview");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -138,6 +148,7 @@ class ApiDocDebugSchemaServiceTest {
                         "badge",
                         true,
                         "复制状态用于路由判断",
+                        "route-by-status",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -157,6 +168,7 @@ class ApiDocDebugSchemaServiceTest {
                         "text",
                         true,
                         "复制阻塞原因用于补输入说明",
+                        "collect-missing-input",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -176,6 +188,7 @@ class ApiDocDebugSchemaServiceTest {
                         "prompt-preview",
                         true,
                         "复制 Prompt 预览给 Agent 节点",
+                        "copy-prompt-preview",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
