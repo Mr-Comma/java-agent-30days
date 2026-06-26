@@ -97,6 +97,16 @@ class ApiDocDebugSchemaServiceTest {
                         "bind-prompt-variables",
                         "copy-prompt-preview");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::targetNode)
+                .containsExactly(
+                        "status-router-node",
+                        "workflow-branch-node",
+                        "tool-dispatch-node",
+                        "input-collector-node",
+                        "debug-panel-node",
+                        "prompt-template-node",
+                        "prompt-preview-node");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -149,6 +159,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "复制状态用于路由判断",
                         "route-by-status",
+                        "status-router-node",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -169,6 +180,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "复制阻塞原因用于补输入说明",
                         "collect-missing-input",
+                        "input-collector-node",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -189,6 +201,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "复制 Prompt 预览给 Agent 节点",
                         "copy-prompt-preview",
+                        "prompt-preview-node",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
