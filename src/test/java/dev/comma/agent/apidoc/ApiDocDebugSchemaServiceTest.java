@@ -77,6 +77,16 @@ class ApiDocDebugSchemaServiceTest {
                 .extracting(ApiDocDebugField::copyable)
                 .containsExactly(true, true, true, true, false, false, true);
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::interactionHint)
+                .containsExactly(
+                        "复制状态用于路由判断",
+                        "复制阶段用于工作流分支",
+                        "触发建议工具节点",
+                        "复制阻塞原因用于补输入说明",
+                        "展开查看人类调试提示",
+                        "展开查看结构化 Prompt 变量",
+                        "复制 Prompt 预览给 Agent 节点");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -127,6 +137,7 @@ class ApiDocDebugSchemaServiceTest {
                         "summary",
                         "badge",
                         true,
+                        "复制状态用于路由判断",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -145,6 +156,7 @@ class ApiDocDebugSchemaServiceTest {
                         "summary",
                         "text",
                         true,
+                        "复制阻塞原因用于补输入说明",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -163,6 +175,7 @@ class ApiDocDebugSchemaServiceTest {
                         "summary",
                         "prompt-preview",
                         true,
+                        "复制 Prompt 预览给 Agent 节点",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
