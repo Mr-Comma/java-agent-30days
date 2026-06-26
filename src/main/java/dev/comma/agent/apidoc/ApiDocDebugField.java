@@ -18,6 +18,7 @@ public record ApiDocDebugField(
         String agentAction,
         String targetNode,
         String nodeInputPath,
+        String handoffPayloadKey,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
