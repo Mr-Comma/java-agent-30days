@@ -160,6 +160,16 @@ class ApiDocDebugSchemaServiceTest {
                         "缺失固定键时应用 fallbackValue，避免 PromptTemplate 变量漂移。",
                         "缺失或空白时应用 fallbackValue，要求先补充有效输入。");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::policySeverity)
+                .containsExactly(
+                        "needs-input",
+                        "needs-input",
+                        "fallback",
+                        "rerun-analysis",
+                        "fallback",
+                        "fallback",
+                        "needs-input");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -219,6 +229,7 @@ class ApiDocDebugSchemaServiceTest {
                         "NEEDS_INPUT",
                         "值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。",
                         "缺失或非法时应用 fallbackValue 并路由到输入补全。",
+                        "needs-input",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -246,6 +257,7 @@ class ApiDocDebugSchemaServiceTest {
                         null,
                         "READY 时允许为 null；NEEDS_INPUT 时应为非空缺输入说明。",
                         "READY 可缺省为 null；NEEDS_INPUT 缺失时提示重新运行分析。",
+                        "rerun-analysis",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -273,6 +285,7 @@ class ApiDocDebugSchemaServiceTest {
                         "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。",
                         "应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。",
                         "缺失或空白时应用 fallbackValue，要求先补充有效输入。",
+                        "needs-input",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
