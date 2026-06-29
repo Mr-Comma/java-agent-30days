@@ -130,6 +130,16 @@ class ApiDocDebugSchemaServiceTest {
                 .extracting(ApiDocDebugField::requiredForNode)
                 .containsExactly(true, true, true, false, true, true, true);
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::fallbackValue)
+                .containsExactly(
+                        "NEEDS_INPUT",
+                        "INPUT_REQUIRED",
+                        "openapi-input-validator",
+                        null,
+                        List.of("请重新运行 /api-docs/analyze 获取调试提示。"),
+                        fallbackReviewPromptVariables(),
+                        "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -186,6 +196,7 @@ class ApiDocDebugSchemaServiceTest {
                         "$.workflowStatus",
                         "workflowStatus",
                         true,
+                        "NEEDS_INPUT",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -210,6 +221,7 @@ class ApiDocDebugSchemaServiceTest {
                         "$.blockingReason",
                         "blockingReason",
                         false,
+                        null,
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -234,9 +246,20 @@ class ApiDocDebugSchemaServiceTest {
                         "$.reviewPromptPreview",
                         "reviewPromptPreview",
                         true,
+                        "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
+    }
+
+    private Map<String, Object> fallbackReviewPromptVariables() {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("workflowStage", "INPUT_REQUIRED");
+        values.put("suggestedTool", "openapi-input-validator");
+        values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
+        values.put("firstReviewModule", null);
+        values.put("firstReviewAction", null);
+        return values;
     }
 
     private Map<String, Object> readyReviewPromptVariablesExample() {

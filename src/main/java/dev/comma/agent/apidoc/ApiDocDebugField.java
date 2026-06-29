@@ -20,6 +20,7 @@ public record ApiDocDebugField(
         String nodeInputPath,
         String handoffPayloadKey,
         boolean requiredForNode,
+        Object fallbackValue,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
