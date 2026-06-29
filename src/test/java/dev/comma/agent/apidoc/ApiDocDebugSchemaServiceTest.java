@@ -127,6 +127,9 @@ class ApiDocDebugSchemaServiceTest {
                         "reviewPromptVariables",
                         "reviewPromptPreview");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::requiredForNode)
+                .containsExactly(true, true, true, false, true, true, true);
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -182,6 +185,7 @@ class ApiDocDebugSchemaServiceTest {
                         "status-router-node",
                         "$.workflowStatus",
                         "workflowStatus",
+                        true,
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -205,6 +209,7 @@ class ApiDocDebugSchemaServiceTest {
                         "input-collector-node",
                         "$.blockingReason",
                         "blockingReason",
+                        false,
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -228,6 +233,7 @@ class ApiDocDebugSchemaServiceTest {
                         "prompt-preview-node",
                         "$.reviewPromptPreview",
                         "reviewPromptPreview",
+                        true,
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
