@@ -21,6 +21,7 @@ public record ApiDocDebugField(
         String handoffPayloadKey,
         boolean requiredForNode,
         Object fallbackValue,
+        String validationRule,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
