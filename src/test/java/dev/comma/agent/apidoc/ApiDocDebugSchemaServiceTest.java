@@ -150,6 +150,16 @@ class ApiDocDebugSchemaServiceTest {
                         "应包含 workflowStage、suggestedTool、blockingReason、firstReviewModule、firstReviewAction；缺失时使用 fallbackValue。",
                         "应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::missingFieldPolicy)
+                .containsExactly(
+                        "缺失或非法时应用 fallbackValue 并路由到输入补全。",
+                        "缺失或非法时应用 fallbackValue 并进入输入补全阶段。",
+                        "缺失或非法时应用 fallbackValue，避免调用未知工具。",
+                        "READY 可缺省为 null；NEEDS_INPUT 缺失时提示重新运行分析。",
+                        "缺失或为空时应用 fallbackValue，保持调试面板有提示。",
+                        "缺失固定键时应用 fallbackValue，避免 PromptTemplate 变量漂移。",
+                        "缺失或空白时应用 fallbackValue，要求先补充有效输入。");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -208,6 +218,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "NEEDS_INPUT",
                         "值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。",
+                        "缺失或非法时应用 fallbackValue 并路由到输入补全。",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -234,6 +245,7 @@ class ApiDocDebugSchemaServiceTest {
                         false,
                         null,
                         "READY 时允许为 null；NEEDS_INPUT 时应为非空缺输入说明。",
+                        "READY 可缺省为 null；NEEDS_INPUT 缺失时提示重新运行分析。",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -260,6 +272,7 @@ class ApiDocDebugSchemaServiceTest {
                         true,
                         "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。",
                         "应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。",
+                        "缺失或空白时应用 fallbackValue，要求先补充有效输入。",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));

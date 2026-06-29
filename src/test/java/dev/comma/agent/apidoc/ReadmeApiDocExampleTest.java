@@ -14,12 +14,12 @@ class ReadmeApiDocExampleTest {
     void documentsDebugFieldTable() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
-        assertThat(readme).contains("| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | 渲染类型 | 可复制 | 交互提示 | Agent 动作 | 目标节点 | 节点输入路径 | 交接 payload 键 | 节点必需 | 降级值 | 校验规则 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
-        assertThat(readme).contains("| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | `badge` | `是` | 复制状态用于路由判断 | `route-by-status` | `status-router-node` | `$.workflowStatus` | `workflowStatus` | `是` | `NEEDS_INPUT` | 值必须为 `READY` 或 `NEEDS_INPUT`；缺失/非法时使用 `fallbackValue`。 | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
-        assertThat(readme).contains("| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | `tool-link` | `是` | 触发建议工具节点 | `invoke-suggested-tool` | `tool-dispatch-node` | `$.suggestedTool` | `suggestedTool` | `是` | `openapi-input-validator` | 值必须为 `api-risk-reviewer` 或 `openapi-input-validator`；缺失/非法时使用 `fallbackValue`。 | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
-        assertThat(readme).contains("| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `text` | `是` | 复制阻塞原因用于补输入说明 | `collect-missing-input` | `input-collector-node` | `$.blockingReason` | `blockingReason` | `否` | `null` | `READY` 时允许为 `null`；`NEEDS_INPUT` 时应为非空缺输入说明。 | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
-        assertThat(readme).contains("| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | `json` | `否` | 展开查看结构化 Prompt 变量 | `bind-prompt-variables` | `prompt-template-node` | `$.reviewPromptVariables` | `reviewPromptVariables` | `是` | INPUT_REQUIRED 变量对象 | 应包含 `workflowStage`、`suggestedTool`、`blockingReason`、`firstReviewModule`、`firstReviewAction`；缺失时使用 `fallbackValue`。 | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |");
-        assertThat(readme).contains("| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | `prompt-preview` | `是` | 复制 Prompt 预览给 Agent 节点 | `copy-prompt-preview` | `prompt-preview-node` | `$.reviewPromptPreview` | `reviewPromptPreview` | `是` | 请先补充有效 OpenAPI/Swagger JSON，不要编造接口。 | 应为非空审查或补输入请求；缺失/空白时使用 `fallbackValue`。 | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
+        assertThat(readme).contains("| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | 渲染类型 | 可复制 | 交互提示 | Agent 动作 | 目标节点 | 节点输入路径 | 交接 payload 键 | 节点必需 | 降级值 | 校验规则 | 缺字段策略 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |");
+        assertThat(readme).contains("| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | `badge` | `是` | 复制状态用于路由判断 | `route-by-status` | `status-router-node` | `$.workflowStatus` | `workflowStatus` | `是` | `NEEDS_INPUT` | 值必须为 `READY` 或 `NEEDS_INPUT`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue` 并路由到输入补全。 | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |");
+        assertThat(readme).contains("| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | `tool-link` | `是` | 触发建议工具节点 | `invoke-suggested-tool` | `tool-dispatch-node` | `$.suggestedTool` | `suggestedTool` | `是` | `openapi-input-validator` | 值必须为 `api-risk-reviewer` 或 `openapi-input-validator`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue`，避免调用未知工具。 | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |");
+        assertThat(readme).contains("| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `text` | `是` | 复制阻塞原因用于补输入说明 | `collect-missing-input` | `input-collector-node` | `$.blockingReason` | `blockingReason` | `否` | `null` | `READY` 时允许为 `null`；`NEEDS_INPUT` 时应为非空缺输入说明。 | `READY` 可缺省为 `null`；`NEEDS_INPUT` 缺失时提示重新运行分析。 | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |");
+        assertThat(readme).contains("| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | `json` | `否` | 展开查看结构化 Prompt 变量 | `bind-prompt-variables` | `prompt-template-node` | `$.reviewPromptVariables` | `reviewPromptVariables` | `是` | INPUT_REQUIRED 变量对象 | 应包含 `workflowStage`、`suggestedTool`、`blockingReason`、`firstReviewModule`、`firstReviewAction`；缺失时使用 `fallbackValue`。 | 缺失固定键时应用 `fallbackValue`，避免 PromptTemplate 变量漂移。 | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |");
+        assertThat(readme).contains("| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | `prompt-preview` | `是` | 复制 Prompt 预览给 Agent 节点 | `copy-prompt-preview` | `prompt-preview-node` | `$.reviewPromptPreview` | `reviewPromptPreview` | `是` | 请先补充有效 OpenAPI/Swagger JSON，不要编造接口。 | 应为非空审查或补输入请求；缺失/空白时使用 `fallbackValue`。 | 缺失或空白时应用 `fallbackValue`，要求先补充有效输入。 | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |");
     }
 
     @Test
@@ -53,6 +53,7 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"requiredForNode\": true");
         assertThat(readme).contains("\"fallbackValue\": \"NEEDS_INPUT\"");
         assertThat(readme).contains("\"validationRule\": \"值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。\"");
+        assertThat(readme).contains("\"missingFieldPolicy\": \"缺失或非法时应用 fallbackValue 并路由到输入补全。\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.workflowStatus\"");
         assertThat(readme).contains("\"readyExampleValue\": \"READY\"");
         assertThat(readme).contains("\"needsInputExampleValue\": \"NEEDS_INPUT\"");
@@ -69,13 +70,14 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"handoffPayloadKey\": \"reviewPromptPreview\"");
         assertThat(readme).contains("\"fallbackValue\": \"请先补充有效 OpenAPI/Swagger JSON，不要编造接口。\"");
         assertThat(readme).contains("\"validationRule\": \"应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。\"");
+        assertThat(readme).contains("\"missingFieldPolicy\": \"缺失或空白时应用 fallbackValue，要求先补充有效输入。\"");
         assertThat(readme).contains("`requiredForNode` 标识字段是否是目标节点执行时的默认必需输入");
         assertThat(readme).contains("reviewPromptVariables");
         assertThat(readme).contains("\"visibility\": \"detail\"");
         assertThat(readme).contains("\"source\": \"ApiDocAnalyzerService.reviewPromptPreview\"");
         assertThat(readme).contains("\"readyExampleValue\": \"请调用 api-risk-reviewer 审查 orders 模块");
         assertThat(readme).contains("\"needsInputExampleValue\": \"请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段");
-        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、来源定位和双路径最小样例。");
+        assertThat(readme).contains("`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`missingFieldPolicy`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、缺字段处理策略、来源定位和双路径最小样例。");
         assertThat(readme).contains("其中 `visibility` 用于给调试面板一个默认展示建议");
         assertThat(readme).contains("`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区");
         assertThat(readme).contains("完整字段清单如下");

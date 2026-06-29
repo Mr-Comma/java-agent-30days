@@ -22,6 +22,7 @@ public record ApiDocDebugField(
         boolean requiredForNode,
         Object fallbackValue,
         String validationRule,
+        String missingFieldPolicy,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
