@@ -183,6 +183,16 @@ class ApiDocDebugSchemaServiceTest {
                         "已使用 INPUT_REQUIRED 变量对象，可继续渲染补输入 Prompt。",
                         "请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::failureEscalation)
+                .containsExactly(
+                        "openapi-input-owner",
+                        "openapi-input-owner",
+                        "none",
+                        "api-docs-operator",
+                        "none",
+                        "none",
+                        "prompt-input-owner");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -245,6 +255,7 @@ class ApiDocDebugSchemaServiceTest {
                         "needs-input",
                         false,
                         "请补充有效 OpenAPI/Swagger JSON 后重新分析。",
+                        "openapi-input-owner",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -275,6 +286,7 @@ class ApiDocDebugSchemaServiceTest {
                         "rerun-analysis",
                         false,
                         "请将阻塞原因展示给用户，并要求重新提交有效接口文档。",
+                        "api-docs-operator",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -305,6 +317,7 @@ class ApiDocDebugSchemaServiceTest {
                         "needs-input",
                         false,
                         "请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。",
+                        "prompt-input-owner",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
