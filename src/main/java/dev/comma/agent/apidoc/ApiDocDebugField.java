@@ -24,6 +24,7 @@ public record ApiDocDebugField(
         String validationRule,
         String missingFieldPolicy,
         String policySeverity,
+        boolean retryable,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
