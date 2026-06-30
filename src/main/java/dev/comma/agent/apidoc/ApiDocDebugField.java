@@ -27,6 +27,7 @@ public record ApiDocDebugField(
         boolean retryable,
         String operatorMessage,
         String failureEscalation,
+        String escalationCondition,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
