@@ -43,7 +43,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别和可重试建议，方便调试面板不解析 README 也能渲染字段说明。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议和操作提示，方便调试面板不解析 README 也能渲染字段说明。
 
 `debug-schema` 的响应结构稳定面向前端和 Agent 编排层：
 
@@ -78,6 +78,7 @@ curl http://localhost:8080/api-docs/debug-schema
       "missingFieldPolicy": "缺失或非法时应用 fallbackValue 并路由到输入补全。",
       "policySeverity": "needs-input",
       "retryable": false,
+      "operatorMessage": "请补充有效 OpenAPI/Swagger JSON 后重新分析。",
       "source": "ApiDocAnalyzerService.workflowStatus",
       "readyExampleValue": "READY",
       "needsInputExampleValue": "NEEDS_INPUT"
@@ -113,6 +114,7 @@ curl http://localhost:8080/api-docs/debug-schema
       "missingFieldPolicy": "缺失固定键时应用 fallbackValue，避免 PromptTemplate 变量漂移。",
       "policySeverity": "fallback",
       "retryable": true,
+      "operatorMessage": "已使用 INPUT_REQUIRED 变量对象，可继续渲染补输入 Prompt。",
       "source": "ApiDocAnalyzerService.reviewPromptVariables"
     },
     {
@@ -140,6 +142,7 @@ curl http://localhost:8080/api-docs/debug-schema
       "missingFieldPolicy": "缺失或空白时应用 fallbackValue，要求先补充有效输入。",
       "policySeverity": "needs-input",
       "retryable": false,
+      "operatorMessage": "请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。",
       "source": "ApiDocAnalyzerService.reviewPromptPreview",
       "readyExampleValue": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
       "needsInputExampleValue": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"
@@ -148,21 +151,21 @@ curl http://localhost:8080/api-docs/debug-schema
 }
 ```
 
-`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`missingFieldPolicy`、`policySeverity`、`retryable`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、缺字段处理策略、策略级别、自动重试建议、来源定位和双路径最小样例。
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`missingFieldPolicy`、`policySeverity`、`retryable`、`operatorMessage`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、缺字段处理策略、策略级别、自动重试建议、操作提示、来源定位和双路径最小样例。
 
-其中 `visibility` 用于给调试面板一个默认展示建议：`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区；`renderType` 用于建议字段的默认展示组件，例如状态徽标、工具链接、列表、JSON 或 Prompt 预览；`copyable` 则告诉前端该字段是否适合一键复制；`interactionHint` 进一步说明复制、展开或触发工具节点等默认交互；`agentAction` 给 Agent 编排层一个稳定的机器动作标识；`targetNode` 把动作映射到具体工作流节点名；`nodeInputPath` 说明节点应从 `/api-docs/analyze` 响应读取哪个字段作为输入；`handoffPayloadKey` 则说明读取后组装到节点 payload 时使用的稳定键名；`requiredForNode` 标识字段是否是目标节点执行时的默认必需输入；`fallbackValue` 说明节点缺少字段时可采用的安全降级值；`validationRule` 描述节点应用降级值前的最小输入校验规则；`missingFieldPolicy` 描述字段缺失或非法时节点应采用降级、补输入或重新分析提示；`policySeverity` 用稳定枚举区分可自动降级、需要补输入或建议重新分析；`retryable` 标识字段缺失/非法后是否适合自动重试目标节点。它们都只描述 UI/编排建议，不改变 `/api-docs/analyze` 的业务行为。
+其中 `visibility` 用于给调试面板一个默认展示建议：`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区；`renderType` 用于建议字段的默认展示组件，例如状态徽标、工具链接、列表、JSON 或 Prompt 预览；`copyable` 则告诉前端该字段是否适合一键复制；`interactionHint` 进一步说明复制、展开或触发工具节点等默认交互；`agentAction` 给 Agent 编排层一个稳定的机器动作标识；`targetNode` 把动作映射到具体工作流节点名；`nodeInputPath` 说明节点应从 `/api-docs/analyze` 响应读取哪个字段作为输入；`handoffPayloadKey` 则说明读取后组装到节点 payload 时使用的稳定键名；`requiredForNode` 标识字段是否是目标节点执行时的默认必需输入；`fallbackValue` 说明节点缺少字段时可采用的安全降级值；`validationRule` 描述节点应用降级值前的最小输入校验规则；`missingFieldPolicy` 描述字段缺失或非法时节点应采用降级、补输入或重新分析提示；`policySeverity` 用稳定枚举区分可自动降级、需要补输入或建议重新分析；`retryable` 标识字段缺失/非法后是否适合自动重试目标节点；`operatorMessage` 给出不可自动处理或已降级后的中文操作提示。它们都只描述 UI/编排建议，不改变 `/api-docs/analyze` 的业务行为。
 
 完整字段清单如下：
 
-| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | 渲染类型 | 可复制 | 交互提示 | Agent 动作 | 目标节点 | 节点输入路径 | 交接 payload 键 | 节点必需 | 降级值 | 校验规则 | 缺字段策略 | 策略级别 | 可重试 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | `badge` | `是` | 复制状态用于路由判断 | `route-by-status` | `status-router-node` | `$.workflowStatus` | `workflowStatus` | `是` | `NEEDS_INPUT` | 值必须为 `READY` 或 `NEEDS_INPUT`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue` 并路由到输入补全。 | `needs-input` | `否` | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |
-| `workflowStage` | 20 | `routing` | 工作流阶段 | 标识当前应进入审查节点还是输入补全节点。 | `summary` | `badge` | `是` | 复制阶段用于工作流分支 | `branch-by-stage` | `workflow-branch-node` | `$.workflowStage` | `workflowStage` | `是` | `INPUT_REQUIRED` | 值必须为 `REVIEW_READY` 或 `INPUT_REQUIRED`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue` 并进入输入补全阶段。 | `needs-input` | `否` | `REVIEW_READY`，审查节点可执行 | `INPUT_REQUIRED`，输入校验节点可执行 | 显示当前工作流阶段，便于调试面板分组 |
-| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | `tool-link` | `是` | 触发建议工具节点 | `invoke-suggested-tool` | `tool-dispatch-node` | `$.suggestedTool` | `suggestedTool` | `是` | `openapi-input-validator` | 值必须为 `api-risk-reviewer` 或 `openapi-input-validator`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue`，避免调用未知工具。 | `fallback` | `是` | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |
-| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `text` | `是` | 复制阻塞原因用于补输入说明 | `collect-missing-input` | `input-collector-node` | `$.blockingReason` | `blockingReason` | `否` | `null` | `READY` 时允许为 `null`；`NEEDS_INPUT` 时应为非空缺输入说明。 | `READY` 可缺省为 `null`；`NEEDS_INPUT` 缺失时提示重新运行分析。 | `rerun-analysis` | `否` | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |
-| `debugHints` | 50 | `human-hint` | 调试提示 | 给调试面板展示的人类可读运行提示。 | `summary` | `list` | `否` | 展开查看人类调试提示 | `show-human-hints` | `debug-panel-node` | `$.debugHints` | `debugHints` | `是` | 请重新运行 `/api-docs/analyze` 获取调试提示。 | 应为非空字符串列表；缺失/为空时使用 `fallbackValue`。 | 缺失或为空时应用 `fallbackValue`，保持调试面板有提示。 | `fallback` | `是` | 展示状态、工具和首个审查动作 | 展示状态、工具和缺输入原因 | 给人类调试面板直接展示 |
-| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | `json` | `否` | 展开查看结构化 Prompt 变量 | `bind-prompt-variables` | `prompt-template-node` | `$.reviewPromptVariables` | `reviewPromptVariables` | `是` | INPUT_REQUIRED 变量对象 | 应包含 `workflowStage`、`suggestedTool`、`blockingReason`、`firstReviewModule`、`firstReviewAction`；缺失时使用 `fallbackValue`。 | 缺失固定键时应用 `fallbackValue`，避免 PromptTemplate 变量漂移。 | `fallback` | `是` | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |
-| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | `prompt-preview` | `是` | 复制 Prompt 预览给 Agent 节点 | `copy-prompt-preview` | `prompt-preview-node` | `$.reviewPromptPreview` | `reviewPromptPreview` | `是` | 请先补充有效 OpenAPI/Swagger JSON，不要编造接口。 | 应为非空审查或补输入请求；缺失/空白时使用 `fallbackValue`。 | 缺失或空白时应用 `fallbackValue`，要求先补充有效输入。 | `needs-input` | `否` | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |
+| 字段 | 顺序 | 分组 | 中文标题 | UI 说明 | 可见性 | 渲染类型 | 可复制 | 交互提示 | Agent 动作 | 目标节点 | 节点输入路径 | 交接 payload 键 | 节点必需 | 降级值 | 校验规则 | 缺字段策略 | 策略级别 | 可重试 | 操作提示 | READY 时含义 | NEEDS_INPUT 时含义 | 前端/Agent 用法 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `workflowStatus` | 10 | `routing` | 工作流状态 | 判断 OpenAPI 输入是否已具备进入风险审查的条件。 | `summary` | `badge` | `是` | 复制状态用于路由判断 | `route-by-status` | `status-router-node` | `$.workflowStatus` | `workflowStatus` | `是` | `NEEDS_INPUT` | 值必须为 `READY` 或 `NEEDS_INPUT`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue` 并路由到输入补全。 | `needs-input` | `否` | 请补充有效 OpenAPI/Swagger JSON 后重新分析。 | 已解析到接口，可进入风险审查 | 缺少 `paths` 或未解析到接口 | 作为主路由状态，决定进入审查还是补输入 |
+| `workflowStage` | 20 | `routing` | 工作流阶段 | 标识当前应进入审查节点还是输入补全节点。 | `summary` | `badge` | `是` | 复制阶段用于工作流分支 | `branch-by-stage` | `workflow-branch-node` | `$.workflowStage` | `workflowStage` | `是` | `INPUT_REQUIRED` | 值必须为 `REVIEW_READY` 或 `INPUT_REQUIRED`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue` 并进入输入补全阶段。 | `needs-input` | `否` | 请补充有效 OpenAPI/Swagger JSON 后重新分析。 | `REVIEW_READY`，审查节点可执行 | `INPUT_REQUIRED`，输入校验节点可执行 | 显示当前工作流阶段，便于调试面板分组 |
+| `suggestedTool` | 30 | `routing` | 建议工具 | 给出下一步建议调用的 Agent 工具或工作流节点。 | `summary` | `tool-link` | `是` | 触发建议工具节点 | `invoke-suggested-tool` | `tool-dispatch-node` | `$.suggestedTool` | `suggestedTool` | `是` | `openapi-input-validator` | 值必须为 `api-risk-reviewer` 或 `openapi-input-validator`；缺失/非法时使用 `fallbackValue`。 | 缺失或非法时应用 `fallbackValue`，避免调用未知工具。 | `fallback` | `是` | 已自动降级为 openapi-input-validator，可继续分发到工具节点。 | 推荐调用 `api-risk-reviewer` | 推荐调用 `openapi-input-validator` | 映射到下一步工具或 Agent 节点 |
+| `blockingReason` | 40 | `routing` | 阻塞原因 | 说明当前阻塞原因；READY 时为空。 | `summary` | `text` | `是` | 复制阻塞原因用于补输入说明 | `collect-missing-input` | `input-collector-node` | `$.blockingReason` | `blockingReason` | `否` | `null` | `READY` 时允许为 `null`；`NEEDS_INPUT` 时应为非空缺输入说明。 | `READY` 可缺省为 `null`；`NEEDS_INPUT` 缺失时提示重新运行分析。 | `rerun-analysis` | `否` | 请将阻塞原因展示给用户，并要求重新提交有效接口文档。 | `null`，没有阻塞原因 | 返回缺输入原因 | 展示阻塞提示，避免编造接口 |
+| `debugHints` | 50 | `human-hint` | 调试提示 | 给调试面板展示的人类可读运行提示。 | `summary` | `list` | `否` | 展开查看人类调试提示 | `show-human-hints` | `debug-panel-node` | `$.debugHints` | `debugHints` | `是` | 请重新运行 `/api-docs/analyze` 获取调试提示。 | 应为非空字符串列表；缺失/为空时使用 `fallbackValue`。 | 缺失或为空时应用 `fallbackValue`，保持调试面板有提示。 | `fallback` | `是` | 已使用默认调试提示，可继续展示给调试面板。 | 展示状态、工具和首个审查动作 | 展示状态、工具和缺输入原因 | 给人类调试面板直接展示 |
+| `reviewPromptVariables` | 60 | `prompt` | 审查 Prompt 变量 | 传给 PromptTemplate 或工作流节点的结构化变量。 | `detail` | `json` | `否` | 展开查看结构化 Prompt 变量 | `bind-prompt-variables` | `prompt-template-node` | `$.reviewPromptVariables` | `reviewPromptVariables` | `是` | INPUT_REQUIRED 变量对象 | 应包含 `workflowStage`、`suggestedTool`、`blockingReason`、`firstReviewModule`、`firstReviewAction`；缺失时使用 `fallbackValue`。 | 缺失固定键时应用 `fallbackValue`，避免 PromptTemplate 变量漂移。 | `fallback` | `是` | 已使用 INPUT_REQUIRED 变量对象，可继续渲染补输入 Prompt。 | 输出首个模块和动作等结构化变量 | 首个模块/动作保持 `null` | 给 PromptTemplate 或工作流节点传参 |
+| `reviewPromptPreview` | 70 | `prompt` | 审查 Prompt 预览 | 根据结构化变量渲染出的可执行审查请求预览。 | `summary` | `prompt-preview` | `是` | 复制 Prompt 预览给 Agent 节点 | `copy-prompt-preview` | `prompt-preview-node` | `$.reviewPromptPreview` | `reviewPromptPreview` | `是` | 请先补充有效 OpenAPI/Swagger JSON，不要编造接口。 | 应为非空审查或补输入请求；缺失/空白时使用 `fallbackValue`。 | 缺失或空白时应用 `fallbackValue`，要求先补充有效输入。 | `needs-input` | `否` | 请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。 | 生成可执行的审查请求 | 生成补输入请求 | 作为调试预览，不替代结构化变量 |
 
 解析到接口时，可以用下面这个请求验证可审查链路：
 
