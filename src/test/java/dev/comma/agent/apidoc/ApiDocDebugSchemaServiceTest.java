@@ -221,6 +221,9 @@ class ApiDocDebugSchemaServiceTest {
                 .extracting(ApiDocDebugField::escalationCategory)
                 .containsExactly("input", "input", "fallback", "operator", "fallback", "fallback", "prompt");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::escalationSla)
+                .containsExactly("当天补齐", "当天补齐", "自动降级继续", "1 个工作日内处理", "自动降级继续", "自动降级继续", "当天收集输入");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -288,6 +291,7 @@ class ApiDocDebugSchemaServiceTest {
                         "已将输入问题升级给 openapi-input-owner：请补充有效 OpenAPI/Swagger JSON 后重新分析。",
                         10,
                         "input",
+                        "当天补齐",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -323,6 +327,7 @@ class ApiDocDebugSchemaServiceTest {
                         "已将阻塞原因问题升级给 api-docs-operator：请展示原因并要求重新提交接口文档。",
                         30,
                         "operator",
+                        "1 个工作日内处理",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -358,6 +363,7 @@ class ApiDocDebugSchemaServiceTest {
                         "已将 Prompt 预览问题升级给 prompt-input-owner：请先收集有效接口文档。",
                         40,
                         "prompt",
+                        "当天收集输入",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
