@@ -32,6 +32,7 @@ public record ApiDocDebugField(
         int escalationPriority,
         String escalationCategory,
         String escalationSla,
+        String escalationContact,
         String source,
         Object readyExampleValue,
         Object needsInputExampleValue) {
