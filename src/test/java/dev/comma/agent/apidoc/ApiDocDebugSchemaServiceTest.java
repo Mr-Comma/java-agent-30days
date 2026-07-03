@@ -234,6 +234,16 @@ class ApiDocDebugSchemaServiceTest {
                         "agent-runtime#safe-fallback",
                         "prompt-input-owner#prompt-intake");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::escalationRunbook)
+                .containsExactly(
+                        "openapi-input-runbook#validate-paths",
+                        "openapi-input-runbook#confirm-review-stage",
+                        "agent-runtime-runbook#tool-fallback",
+                        "api-docs-operator-runbook#collect-blocking-input",
+                        "agent-runtime-runbook#debug-hints-fallback",
+                        "agent-runtime-runbook#prompt-variable-fallback",
+                        "prompt-input-runbook#collect-non-hallucinated-prompt-input");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -303,6 +313,7 @@ class ApiDocDebugSchemaServiceTest {
                         "input",
                         "当天补齐",
                         "openapi-input-owner#docs-intake",
+                        "openapi-input-runbook#validate-paths",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -340,6 +351,7 @@ class ApiDocDebugSchemaServiceTest {
                         "operator",
                         "1 个工作日内处理",
                         "api-docs-operator#blocking-reason",
+                        "api-docs-operator-runbook#collect-blocking-input",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -377,6 +389,7 @@ class ApiDocDebugSchemaServiceTest {
                         "prompt",
                         "当天收集输入",
                         "prompt-input-owner#prompt-intake",
+                        "prompt-input-runbook#collect-non-hallucinated-prompt-input",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
