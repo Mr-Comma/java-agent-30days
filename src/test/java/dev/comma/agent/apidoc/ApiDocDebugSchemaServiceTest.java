@@ -244,6 +244,16 @@ class ApiDocDebugSchemaServiceTest {
                         "agent-runtime-runbook#prompt-variable-fallback",
                         "prompt-input-runbook#collect-non-hallucinated-prompt-input");
         assertThat(response.fields())
+                .extracting(ApiDocDebugField::runbookStep)
+                .containsExactly(
+                        "校验 paths 并要求重新提交有效 OpenAPI/Swagger JSON。",
+                        "确认输入可进入 REVIEW_READY，否则补齐 paths。",
+                        "将未知工具降级为 openapi-input-validator 后继续分发。",
+                        "收集缺失 paths 或解析失败原因并反馈给输入方。",
+                        "补写默认调试提示后继续展示。",
+                        "补齐 INPUT_REQUIRED 变量对象后继续渲染。",
+                        "收集非编造接口输入后再生成审查 Prompt。");
+        assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
                         "ApiDocAnalyzerService.workflowStatus",
@@ -314,6 +324,7 @@ class ApiDocDebugSchemaServiceTest {
                         "当天补齐",
                         "openapi-input-owner#docs-intake",
                         "openapi-input-runbook#validate-paths",
+                        "校验 paths 并要求重新提交有效 OpenAPI/Swagger JSON。",
                         "ApiDocAnalyzerService.workflowStatus",
                         "READY",
                         "NEEDS_INPUT"));
@@ -352,6 +363,7 @@ class ApiDocDebugSchemaServiceTest {
                         "1 个工作日内处理",
                         "api-docs-operator#blocking-reason",
                         "api-docs-operator-runbook#collect-blocking-input",
+                        "收集缺失 paths 或解析失败原因并反馈给输入方。",
                         "ApiDocAnalyzerService.blockingReason",
                         null,
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"));
@@ -390,6 +402,7 @@ class ApiDocDebugSchemaServiceTest {
                         "当天收集输入",
                         "prompt-input-owner#prompt-intake",
                         "prompt-input-runbook#collect-non-hallucinated-prompt-input",
+                        "收集非编造接口输入后再生成审查 Prompt。",
                         "ApiDocAnalyzerService.reviewPromptPreview",
                         "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
                         "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
