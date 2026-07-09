@@ -26,6 +26,9 @@ class ReadmeApiDocExampleTest {
     void documentsDebugSchemaResponseExample() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
+        assertThat(readme).contains("`/api-docs/analyze` 的响应里可以重点看这几个调试字段");
+        assertThat(readme).contains("`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤");
+        assertThat(readme).contains("路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果");
         assertThat(readme).contains("`debug-schema` 的响应结构稳定面向前端和 Agent 编排层");
         assertThat(readme).contains("\"endpoint\": \"/api-docs/analyze\"");
         assertThat(readme).contains("\"schemaVersion\": \"v1\"");
@@ -135,6 +138,8 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"blockingReason\": null");
         assertThat(readme).contains("\"firstReviewModule\": \"orders\"");
         assertThat(readme).contains("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
+        assertThat(readme).contains("\"analysisTrace\": [");
+        assertThat(readme).contains("\"route: workflowStatus=READY，suggestedTool=api-risk-reviewer。\"");
     }
 
     @Test
@@ -149,5 +154,6 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"状态：NEEDS_INPUT，暂不进入风险审查。\"");
         assertThat(readme).contains("\"firstReviewModule\": null");
         assertThat(readme).contains("请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。");
+        assertThat(readme).contains("\"route: workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。\"");
     }
 }

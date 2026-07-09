@@ -43,7 +43,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
 
 `debug-schema` 的响应结构稳定面向前端和 Agent 编排层：
 
@@ -227,7 +227,14 @@ curl -X POST http://localhost:8080/api-docs/analyze \
     "firstReviewModule": "orders",
     "firstReviewAction": "先审查删除接口、权限控制和误删保护。"
   },
-  "reviewPromptPreview": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"
+  "reviewPromptPreview": "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
+  "analysisTrace": [
+    "parse: 识别接口 2 个。",
+    "aggregate: 聚合模块 2 个。",
+    "prioritize: 生成审查步骤 2 个。",
+    "route: workflowStatus=READY，suggestedTool=api-risk-reviewer。",
+    "advise: 生成风险提示和测试建议 2 条。"
+  ]
 }
 ```
 
@@ -259,6 +266,13 @@ curl -X POST http://localhost:8080/api-docs/analyze \
     "firstReviewModule": null,
     "firstReviewAction": null
   },
-  "reviewPromptPreview": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"
+  "reviewPromptPreview": "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。",
+  "analysisTrace": [
+    "parse: 识别接口 0 个。",
+    "aggregate: 聚合模块 0 个。",
+    "prioritize: 生成审查步骤 0 个。",
+    "route: workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
+    "advise: 生成风险提示和测试建议 0 条。"
+  ]
 }
 ```

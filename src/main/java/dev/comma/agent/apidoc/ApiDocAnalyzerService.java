@@ -44,7 +44,7 @@ public class ApiDocAnalyzerService {
                 taskConstraints(reviewPlan),
                 expectedOutput(),
                 executionChecklist(reviewPlan),
-                analysisTrace(parseResponse.endpoints(), modules, reviewPlan, advices),
+                analysisTrace(parseResponse.endpoints(), modules, reviewPlan, advices, workflowStatus),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -346,11 +346,12 @@ public class ApiDocAnalyzerService {
     }
 
     private List<String> analysisTrace(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
-            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices) {
+            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
         return List.of(
                 "parse: 识别接口 " + endpoints.size() + " 个。",
                 "aggregate: 聚合模块 " + modules.size() + " 个。",
                 "prioritize: 生成审查步骤 " + reviewPlan.size() + " 个。",
+                "route: workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
                 "advise: 生成风险提示和测试建议 " + advices.size() + " 条。");
     }
 
