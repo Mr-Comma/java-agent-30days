@@ -192,7 +192,14 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.debugHints[1]").value("工具：调用 openapi-input-validator 校验输入。"))
                 .andExpect(jsonPath("$.debugHints[2]").value("原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。"))
                 .andExpect(jsonPath("$.analysisTrace[3]")
-                        .value("route: workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"));
+                        .value("route: workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].stage").value("parse"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 0 个。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].status").value("NEEDS_INPUT"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].message")
+                        .value("workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"));
     }
 
     @Test
@@ -222,6 +229,13 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.debugHints[1]").value("工具：调用 api-risk-reviewer 执行首个审查动作。"))
                 .andExpect(jsonPath("$.debugHints[2]").value("首个动作：P1 审查 orders 模块，先审查删除接口、权限控制和误删保护。"))
                 .andExpect(jsonPath("$.analysisTrace[3]")
-                        .value("route: workflowStatus=READY，suggestedTool=api-risk-reviewer。"));
+                        .value("route: workflowStatus=READY，suggestedTool=api-risk-reviewer。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].stage").value("parse"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 1 个。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].status").value("READY"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].message")
+                        .value("workflowStatus=READY，suggestedTool=api-risk-reviewer。"));
     }
 }

@@ -26,7 +26,7 @@ Java Agent API 文档助手：输入 Swagger / Knife4j 地址，自动识别模�
 
 本仓库已包含一个最小 Spring Boot Agent 骨架，当前先用 mock 响应保留 `/chat` 入口，并支持识别时间问题后调用内置 `time` 工具；mock agent 的角色名和空 prompt 默认问题可通过 `src/main/resources/application.yml` 的 `agent.chat` 配置调整。`/chat` 还支持用 `sessionId` 做最小内存上下文，响应会返回当前轮次和上一轮 prompt。
 
-API 文档助手方向已增加一个最小 OpenAPI/Swagger JSON 解析入口：`POST /api-docs/parse` 会从 `paths` 中抽取接口方法、路径和摘要；`POST /api-docs/analyze` 会基于解析出的接口生成确定性的中文摘要、模块聚合视图、模块风险等级、模块风险分布、模块审查优先级、最小审查计划、首要审查模块、审查排序原因、Agent 分析角色、人类可读事实、结构化事实列表、工作流状态、工作流阶段、建议工具、审查 Prompt 模板、审查 Prompt 变量、审查 Prompt 预览、阻塞原因、推荐下一步行动、拆分后的任务目标/约束/期望输出、工作流执行清单、分析轨迹、任务、风险提示和测试建议 mock，作为后续接入 LLM 分析与工作流编排前的稳定领域能力。后续逐步替换为真实 LLM、流式输出和更多工具调用。
+API 文档助手方向已增加一个最小 OpenAPI/Swagger JSON 解析入口：`POST /api-docs/parse` 会从 `paths` 中抽取接口方法、路径和摘要；`POST /api-docs/analyze` 会基于解析出的接口生成确定性的中文摘要、模块聚合视图、模块风险等级、模块风险分布、模块审查优先级、最小审查计划、首要审查模块、审查排序原因、Agent 分析角色、人类可读事实、结构化事实列表、工作流状态、工作流阶段、建议工具、审查 Prompt 模板、审查 Prompt 变量、审查 Prompt 预览、阻塞原因、推荐下一步行动、拆分后的任务目标/约束/期望输出、工作流执行清单、分析轨迹、结构化分析轨迹、任务、风险提示和测试建议 mock，作为后续接入 LLM 分析与工作流编排前的稳定领域能力。后续逐步替换为真实 LLM、流式输出和更多工具调用。
 
 ```bash
 mvn test
@@ -43,7 +43,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。新增的 `analysisTraceItems` 保留相同执行轨迹的结构化形态（`stage`、`status`、`message`），方便前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态。`GET /api-docs/debug-schema` 会返回这些字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
 
 `debug-schema` 的响应结构稳定面向前端和 Agent 编排层：
 
@@ -234,6 +234,13 @@ curl -X POST http://localhost:8080/api-docs/analyze \
     "prioritize: 生成审查步骤 2 个。",
     "route: workflowStatus=READY，suggestedTool=api-risk-reviewer。",
     "advise: 生成风险提示和测试建议 2 条。"
+  ],
+  "analysisTraceItems": [
+    {"stage": "parse", "status": "DONE", "message": "识别接口 2 个。"},
+    {"stage": "aggregate", "status": "DONE", "message": "聚合模块 2 个。"},
+    {"stage": "prioritize", "status": "DONE", "message": "生成审查步骤 2 个。"},
+    {"stage": "route", "status": "READY", "message": "workflowStatus=READY，suggestedTool=api-risk-reviewer。"},
+    {"stage": "advise", "status": "DONE", "message": "生成风险提示和测试建议 2 条。"}
   ]
 }
 ```
@@ -273,6 +280,13 @@ curl -X POST http://localhost:8080/api-docs/analyze \
     "prioritize: 生成审查步骤 0 个。",
     "route: workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
     "advise: 生成风险提示和测试建议 0 条。"
+  ],
+  "analysisTraceItems": [
+    {"stage": "parse", "status": "DONE", "message": "识别接口 0 个。"},
+    {"stage": "aggregate", "status": "DONE", "message": "聚合模块 0 个。"},
+    {"stage": "prioritize", "status": "DONE", "message": "生成审查步骤 0 个。"},
+    {"stage": "route", "status": "NEEDS_INPUT", "message": "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"},
+    {"stage": "advise", "status": "DONE", "message": "生成风险提示和测试建议 0 条。"}
   ]
 }
 ```

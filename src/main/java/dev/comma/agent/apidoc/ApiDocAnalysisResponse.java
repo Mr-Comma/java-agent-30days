@@ -23,6 +23,7 @@ public record ApiDocAnalysisResponse(
         String expectedOutput,
         List<String> executionChecklist,
         List<String> analysisTrace,
+        List<ApiAnalysisTraceItem> analysisTraceItems,
         String analysisTask,
         List<ApiEndpointAdvice> advices,
         List<ApiModuleSummary> modules,

@@ -45,6 +45,7 @@ public class ApiDocAnalyzerService {
                 expectedOutput(),
                 executionChecklist(reviewPlan),
                 analysisTrace(parseResponse.endpoints(), modules, reviewPlan, advices, workflowStatus),
+                analysisTraceItems(parseResponse.endpoints(), modules, reviewPlan, advices, workflowStatus),
                 analysisTask(reviewPlan),
                 advices,
                 modules,
@@ -353,6 +354,17 @@ public class ApiDocAnalyzerService {
                 "prioritize: 生成审查步骤 " + reviewPlan.size() + " 个。",
                 "route: workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
                 "advise: 生成风险提示和测试建议 " + advices.size() + " 条。");
+    }
+
+    private List<ApiAnalysisTraceItem> analysisTraceItems(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
+            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
+        return List.of(
+                new ApiAnalysisTraceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。"),
+                new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 " + modules.size() + " 个。"),
+                new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。"),
+                new ApiAnalysisTraceItem("route", workflowStatus,
+                        "workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。"),
+                new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 " + advices.size() + " 条。"));
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
