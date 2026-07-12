@@ -86,11 +86,12 @@ class ApiDocAnalyzerServiceTest {
                         "advise: 生成风险提示和测试建议 4 条。");
         assertThat(response.analysisTraceItems())
                 .containsExactly(
-                        new ApiAnalysisTraceItem("parse", "DONE", "识别接口 4 个。"),
-                        new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 3 个。"),
-                        new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 3 个。"),
-                        new ApiAnalysisTraceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。"),
-                        new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 4 条。"));
+                        new ApiAnalysisTraceItem("parse", "DONE", "识别接口 4 个。", "检查接口解析结果。"),
+                        new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 3 个。", "查看模块聚合结果。"),
+                        new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 3 个。", "按审查优先级执行。"),
+                        new ApiAnalysisTraceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。",
+                                "进入 API 风险审查。"),
+                        new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 4 条。", "查看风险提示和测试建议。"));
         assertThat(response.analysisTask())
                 .isEqualTo("审查计划：orders(P1)：先审查删除接口、权限控制和误删保护。高风险模块排在最前，因为包含删除接口或多个带路径参数的写操作。；users(P2)：再审查写操作参数校验和失败回滚。中风险模块排在其后，因为包含写操作或路径参数。；audit(P3)：最后抽查读接口分页、筛选和空结果。低风险模块最后抽查，因为当前主要是读接口且未发现路径参数。请基于以上上下文输出风险说明、测试建议和下一步行动。");
         assertThat(response.modules())
@@ -190,12 +191,13 @@ class ApiDocAnalyzerServiceTest {
                         "advise: 生成风险提示和测试建议 0 条。");
         assertThat(response.analysisTraceItems())
                 .containsExactly(
-                        new ApiAnalysisTraceItem("parse", "DONE", "识别接口 0 个。"),
-                        new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 0 个。"),
-                        new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 0 个。"),
+                        new ApiAnalysisTraceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。"),
+                        new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 0 个。", "查看模块聚合结果。"),
+                        new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 0 个。", "按审查优先级执行。"),
                         new ApiAnalysisTraceItem("route", "NEEDS_INPUT",
-                                "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"),
-                        new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 0 条。"));
+                                "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
+                                "补充有效 OpenAPI/Swagger JSON。"),
+                        new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 0 条。", "查看风险提示和测试建议。"));
         assertThat(response.analysisTask()).isEqualTo("请输出风险说明、测试建议和下一步行动。");
     }
 }

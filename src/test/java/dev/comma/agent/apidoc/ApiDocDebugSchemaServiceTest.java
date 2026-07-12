@@ -27,16 +27,18 @@ class ApiDocDebugSchemaServiceTest {
                         "blockingReason",
                         "debugHints",
                         "reviewPromptVariables",
-                        "reviewPromptPreview");
+                        "reviewPromptPreview",
+                        "analysisTraceItems");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::jsonType)
-                .containsExactly("string", "string", "string", "string|null", "array<string>", "object", "string");
+                .containsExactly("string", "string", "string", "string|null", "array<string>", "object", "string",
+                        "array<object>");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::required)
-                .containsExactly(true, true, true, false, true, true, true);
+                .containsExactly(true, true, true, false, true, true, true, true);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::displayOrder)
-                .containsExactly(10, 20, 30, 40, 50, 60, 70);
+                .containsExactly(10, 20, 30, 40, 50, 60, 70, 80);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::category)
                 .containsExactly(
@@ -46,7 +48,8 @@ class ApiDocDebugSchemaServiceTest {
                         "routing",
                         "human-hint",
                         "prompt",
-                        "prompt");
+                        "prompt",
+                        "trace");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::uiLabel)
                 .containsExactly(
@@ -56,7 +59,8 @@ class ApiDocDebugSchemaServiceTest {
                         "阻塞原因",
                         "调试提示",
                         "审查 Prompt 变量",
-                        "审查 Prompt 预览");
+                        "审查 Prompt 预览",
+                        "结构化分析轨迹");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::uiDescription)
                 .containsExactly(
@@ -66,16 +70,17 @@ class ApiDocDebugSchemaServiceTest {
                         "说明当前阻塞原因；READY 时为空。",
                         "给调试面板展示的人类可读运行提示。",
                         "传给 PromptTemplate 或工作流节点的结构化变量。",
-                        "根据结构化变量渲染出的可执行审查请求预览。");
+                        "根据结构化变量渲染出的可执行审查请求预览。",
+                        "保留解析、聚合、排序、路由和建议生成的结构化执行轨迹。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::visibility)
-                .containsExactly("summary", "summary", "summary", "summary", "summary", "detail", "summary");
+                .containsExactly("summary", "summary", "summary", "summary", "summary", "detail", "summary", "detail");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::renderType)
-                .containsExactly("badge", "badge", "tool-link", "text", "list", "json", "prompt-preview");
+                .containsExactly("badge", "badge", "tool-link", "text", "list", "json", "prompt-preview", "timeline");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::copyable)
-                .containsExactly(true, true, true, true, false, false, true);
+                .containsExactly(true, true, true, true, false, false, true, false);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::interactionHint)
                 .containsExactly(
@@ -85,7 +90,8 @@ class ApiDocDebugSchemaServiceTest {
                         "复制阻塞原因用于补输入说明",
                         "展开查看人类调试提示",
                         "展开查看结构化 Prompt 变量",
-                        "复制 Prompt 预览给 Agent 节点");
+                        "复制 Prompt 预览给 Agent 节点",
+                        "展开查看结构化执行轨迹");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::agentAction)
                 .containsExactly(
@@ -95,7 +101,8 @@ class ApiDocDebugSchemaServiceTest {
                         "collect-missing-input",
                         "show-human-hints",
                         "bind-prompt-variables",
-                        "copy-prompt-preview");
+                        "copy-prompt-preview",
+                        "show-analysis-timeline");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::targetNode)
                 .containsExactly(
@@ -105,7 +112,8 @@ class ApiDocDebugSchemaServiceTest {
                         "input-collector-node",
                         "debug-panel-node",
                         "prompt-template-node",
-                        "prompt-preview-node");
+                        "prompt-preview-node",
+                        "analysis-timeline-node");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::nodeInputPath)
                 .containsExactly(
@@ -115,7 +123,8 @@ class ApiDocDebugSchemaServiceTest {
                         "$.blockingReason",
                         "$.debugHints",
                         "$.reviewPromptVariables",
-                        "$.reviewPromptPreview");
+                        "$.reviewPromptPreview",
+                        "$.analysisTraceItems");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::handoffPayloadKey)
                 .containsExactly(
@@ -125,10 +134,11 @@ class ApiDocDebugSchemaServiceTest {
                         "blockingReason",
                         "debugHints",
                         "reviewPromptVariables",
-                        "reviewPromptPreview");
+                        "reviewPromptPreview",
+                        "analysisTraceItems");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::requiredForNode)
-                .containsExactly(true, true, true, false, true, true, true);
+                .containsExactly(true, true, true, false, true, true, true, false);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::fallbackValue)
                 .containsExactly(
@@ -138,7 +148,8 @@ class ApiDocDebugSchemaServiceTest {
                         null,
                         List.of("请重新运行 /api-docs/analyze 获取调试提示。"),
                         fallbackReviewPromptVariables(),
-                        "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。");
+                        "请先补充有效 OpenAPI/Swagger JSON，不要编造接口。",
+                        fallbackTraceItems());
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::validationRule)
                 .containsExactly(
@@ -148,7 +159,8 @@ class ApiDocDebugSchemaServiceTest {
                         "READY 时允许为 null；NEEDS_INPUT 时应为非空缺输入说明。",
                         "应为非空字符串列表；缺失/为空时使用 fallbackValue。",
                         "应包含 workflowStage、suggestedTool、blockingReason、firstReviewModule、firstReviewAction；缺失时使用 fallbackValue。",
-                        "应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。");
+                        "应为非空审查或补输入请求；缺失/空白时使用 fallbackValue。",
+                        "应为包含 stage、status、message、nextAction 的非空对象列表；缺失/为空时使用 fallbackValue。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::missingFieldPolicy)
                 .containsExactly(
@@ -158,7 +170,8 @@ class ApiDocDebugSchemaServiceTest {
                         "READY 可缺省为 null；NEEDS_INPUT 缺失时提示重新运行分析。",
                         "缺失或为空时应用 fallbackValue，保持调试面板有提示。",
                         "缺失固定键时应用 fallbackValue，避免 PromptTemplate 变量漂移。",
-                        "缺失或空白时应用 fallbackValue，要求先补充有效输入。");
+                        "缺失或空白时应用 fallbackValue，要求先补充有效输入。",
+                        "缺失或为空时应用 fallbackValue，保持时间线可展示。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::policySeverity)
                 .containsExactly(
@@ -168,10 +181,11 @@ class ApiDocDebugSchemaServiceTest {
                         "rerun-analysis",
                         "fallback",
                         "fallback",
-                        "needs-input");
+                        "needs-input",
+                        "fallback");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::retryable)
-                .containsExactly(false, false, true, false, true, true, false);
+                .containsExactly(false, false, true, false, true, true, false, true);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::operatorMessage)
                 .containsExactly(
@@ -181,7 +195,8 @@ class ApiDocDebugSchemaServiceTest {
                         "请将阻塞原因展示给用户，并要求重新提交有效接口文档。",
                         "已使用默认调试提示，可继续展示给调试面板。",
                         "已使用 INPUT_REQUIRED 变量对象，可继续渲染补输入 Prompt。",
-                        "请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。");
+                        "请先收集有效 OpenAPI/Swagger JSON，再生成审查 Prompt。",
+                        "已使用默认结构化轨迹，可继续展示时间线。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::failureEscalation)
                 .containsExactly(
@@ -191,7 +206,8 @@ class ApiDocDebugSchemaServiceTest {
                         "api-docs-operator",
                         "none",
                         "none",
-                        "prompt-input-owner");
+                        "prompt-input-owner",
+                        "none");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationCondition)
                 .containsExactly(
@@ -201,7 +217,8 @@ class ApiDocDebugSchemaServiceTest {
                         "当 NEEDS_INPUT 路径缺少阻塞原因或原因无法指导补输入时升级。",
                         "无需升级；缺失或为空时使用 fallbackValue 继续展示。",
                         "无需升级；缺失固定键时使用 fallbackValue 继续渲染补输入 Prompt。",
-                        "当 Prompt 预览缺失、空白或无法生成非编造审查请求时升级。"
+                        "当 Prompt 预览缺失、空白或无法生成非编造审查请求时升级。",
+                        "无需升级；缺失或为空时使用 fallbackValue 继续展示。"
                 );
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::failureEscalationMessage)
@@ -212,17 +229,18 @@ class ApiDocDebugSchemaServiceTest {
                         "已将阻塞原因问题升级给 api-docs-operator：请展示原因并要求重新提交接口文档。",
                         "无需升级：已使用默认调试提示继续展示。",
                         "无需升级：已使用 INPUT_REQUIRED 变量对象继续渲染补输入 Prompt。",
-                        "已将 Prompt 预览问题升级给 prompt-input-owner：请先收集有效接口文档。"
+                        "已将 Prompt 预览问题升级给 prompt-input-owner：请先收集有效接口文档。",
+                        "无需升级：已使用默认结构化轨迹继续展示。"
                 );
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationPriority)
-                .containsExactly(10, 20, 90, 30, 90, 90, 40);
+                .containsExactly(10, 20, 90, 30, 90, 90, 40, 90);
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationCategory)
-                .containsExactly("input", "input", "fallback", "operator", "fallback", "fallback", "prompt");
+                .containsExactly("input", "input", "fallback", "operator", "fallback", "fallback", "prompt", "fallback");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationSla)
-                .containsExactly("当天补齐", "当天补齐", "自动降级继续", "1 个工作日内处理", "自动降级继续", "自动降级继续", "当天收集输入");
+                .containsExactly("当天补齐", "当天补齐", "自动降级继续", "1 个工作日内处理", "自动降级继续", "自动降级继续", "当天收集输入", "自动降级继续");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationContact)
                 .containsExactly(
@@ -232,7 +250,8 @@ class ApiDocDebugSchemaServiceTest {
                         "api-docs-operator#blocking-reason",
                         "agent-runtime#safe-fallback",
                         "agent-runtime#safe-fallback",
-                        "prompt-input-owner#prompt-intake");
+                        "prompt-input-owner#prompt-intake",
+                        "agent-runtime#safe-fallback");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationRunbook)
                 .containsExactly(
@@ -242,7 +261,8 @@ class ApiDocDebugSchemaServiceTest {
                         "api-docs-operator-runbook#collect-blocking-input",
                         "agent-runtime-runbook#debug-hints-fallback",
                         "agent-runtime-runbook#prompt-variable-fallback",
-                        "prompt-input-runbook#collect-non-hallucinated-prompt-input");
+                        "prompt-input-runbook#collect-non-hallucinated-prompt-input",
+                        "agent-runtime-runbook#trace-items-fallback");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::runbookStep)
                 .containsExactly(
@@ -252,7 +272,8 @@ class ApiDocDebugSchemaServiceTest {
                         "收集缺失 paths 或解析失败原因并反馈给输入方。",
                         "补写默认调试提示后继续展示。",
                         "补齐 INPUT_REQUIRED 变量对象后继续渲染。",
-                        "收集非编造接口输入后再生成审查 Prompt。");
+                        "收集非编造接口输入后再生成审查 Prompt。",
+                        "补写默认结构化轨迹后继续展示。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::escalationOwnerRole)
                 .containsExactly(
@@ -262,7 +283,8 @@ class ApiDocDebugSchemaServiceTest {
                         "API 文档助手值班人",
                         "Agent 运行时",
                         "Agent 运行时",
-                        "Prompt 输入负责人");
+                        "Prompt 输入负责人",
+                        "Agent 运行时");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::runbookExpectedOutcome)
                 .containsExactly(
@@ -272,7 +294,8 @@ class ApiDocDebugSchemaServiceTest {
                         "阻塞原因已反馈给输入方，并等待重新提交接口文档。",
                         "调试面板展示默认提示并保留继续处理入口。",
                         "Prompt 变量已补齐为 INPUT_REQUIRED 对象并可继续渲染。",
-                        "已收集有效接口输入，下一次可生成非编造审查 Prompt。");
+                        "已收集有效接口输入，下一次可生成非编造审查 Prompt。",
+                        "调试面板展示默认结构化轨迹并保留继续处理入口。");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::source)
                 .containsExactly(
@@ -282,7 +305,8 @@ class ApiDocDebugSchemaServiceTest {
                         "ApiDocAnalyzerService.blockingReason",
                         "ApiDocAnalyzerService.debugHints",
                         "ApiDocAnalyzerService.reviewPromptVariables",
-                        "ApiDocAnalyzerService.reviewPromptPreview");
+                        "ApiDocAnalyzerService.reviewPromptPreview",
+                        "ApiDocAnalyzerService.analysisTraceItems");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::readyExampleValue)
                 .containsExactly(
@@ -292,7 +316,8 @@ class ApiDocDebugSchemaServiceTest {
                         null,
                         List.of("状态：READY，可以进入 API 风险审查。"),
                         readyReviewPromptVariablesExample(),
-                        "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
+                        "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
+                        readyTraceItemsExample());
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::needsInputExampleValue)
                 .containsExactly(
@@ -302,7 +327,8 @@ class ApiDocDebugSchemaServiceTest {
                         "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
                         List.of("状态：NEEDS_INPUT，暂不进入风险审查。"),
                         needsInputReviewPromptVariablesExample(),
-                        "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。");
+                        "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。",
+                        needsInputTraceItemsExample());
     }
 
     @Test
@@ -461,6 +487,33 @@ class ApiDocDebugSchemaServiceTest {
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);
+        return values;
+    }
+
+    private List<Map<String, Object>> fallbackTraceItems() {
+        return List.of(traceItem("route", "NEEDS_INPUT", "请重新运行 /api-docs/analyze 获取结构化轨迹。",
+                "补充有效 OpenAPI/Swagger JSON。"));
+    }
+
+    private List<Map<String, Object>> readyTraceItemsExample() {
+        return List.of(
+                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。"),
+                traceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。", "进入 API 风险审查。"));
+    }
+
+    private List<Map<String, Object>> needsInputTraceItemsExample() {
+        return List.of(
+                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。"),
+                traceItem("route", "NEEDS_INPUT", "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
+                        "补充有效 OpenAPI/Swagger JSON。"));
+    }
+
+    private Map<String, Object> traceItem(String stage, String status, String message, String nextAction) {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("stage", stage);
+        values.put("status", status);
+        values.put("message", message);
+        values.put("nextAction", nextAction);
         return values;
     }
 }

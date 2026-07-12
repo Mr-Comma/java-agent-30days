@@ -161,7 +161,25 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.fields[6].readyExampleValue")
                         .value("请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。"))
                 .andExpect(jsonPath("$.fields[6].needsInputExampleValue")
-                        .value("请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"));
+                        .value("请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"))
+                .andExpect(jsonPath("$.fields[7].name").value("analysisTraceItems"))
+                .andExpect(jsonPath("$.fields[7].jsonType").value("array<object>"))
+                .andExpect(jsonPath("$.fields[7].displayOrder").value(80))
+                .andExpect(jsonPath("$.fields[7].category").value("trace"))
+                .andExpect(jsonPath("$.fields[7].uiLabel").value("结构化分析轨迹"))
+                .andExpect(jsonPath("$.fields[7].uiDescription").value("保留解析、聚合、排序、路由和建议生成的结构化执行轨迹。"))
+                .andExpect(jsonPath("$.fields[7].visibility").value("detail"))
+                .andExpect(jsonPath("$.fields[7].renderType").value("timeline"))
+                .andExpect(jsonPath("$.fields[7].copyable").value(false))
+                .andExpect(jsonPath("$.fields[7].interactionHint").value("展开查看结构化执行轨迹"))
+                .andExpect(jsonPath("$.fields[7].agentAction").value("show-analysis-timeline"))
+                .andExpect(jsonPath("$.fields[7].targetNode").value("analysis-timeline-node"))
+                .andExpect(jsonPath("$.fields[7].nodeInputPath").value("$.analysisTraceItems"))
+                .andExpect(jsonPath("$.fields[7].handoffPayloadKey").value("analysisTraceItems"))
+                .andExpect(jsonPath("$.fields[7].fallbackValue[0].stage").value("route"))
+                .andExpect(jsonPath("$.fields[7].fallbackValue[0].status").value("NEEDS_INPUT"))
+                .andExpect(jsonPath("$.fields[7].readyExampleValue[1].status").value("READY"))
+                .andExpect(jsonPath("$.fields[7].needsInputExampleValue[1].status").value("NEEDS_INPUT"));
     }
 
     @Test
@@ -196,10 +214,13 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.analysisTraceItems[0].stage").value("parse"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 0 个。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].nextAction").value("检查接口解析结果。"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].status").value("NEEDS_INPUT"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].message")
-                        .value("workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"));
+                        .value("workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].nextAction")
+                        .value("补充有效 OpenAPI/Swagger JSON。"));
     }
 
     @Test
@@ -233,9 +254,11 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.analysisTraceItems[0].stage").value("parse"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 1 个。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].nextAction").value("检查接口解析结果。"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].status").value("READY"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].message")
-                        .value("workflowStatus=READY，suggestedTool=api-risk-reviewer。"));
+                        .value("workflowStatus=READY，suggestedTool=api-risk-reviewer。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].nextAction").value("进入 API 风险审查。"));
     }
 }

@@ -293,7 +293,47 @@ public class ApiDocDebugSchemaService {
                                 "已收集有效接口输入，下一次可生成非编造审查 Prompt。",
                                 "ApiDocAnalyzerService.reviewPromptPreview",
                                 "请调用 api-risk-reviewer 审查 orders 模块：先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。",
-                                "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。")));
+                                "请调用 openapi-input-validator 处理 INPUT_REQUIRED 阶段：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。"),
+                        new ApiDocDebugField(
+                                "analysisTraceItems",
+                                "array<object>",
+                                true,
+                                "输出结构化执行轨迹，route 状态为 READY",
+                                "输出结构化执行轨迹，route 状态为 NEEDS_INPUT",
+                                "给前端时间线或 Agent 编排层按 stage/status/message/nextAction 展示执行过程",
+                                80,
+                                "trace",
+                                "结构化分析轨迹",
+                                "保留解析、聚合、排序、路由和建议生成的结构化执行轨迹。",
+                                "detail",
+                                "timeline",
+                                false,
+                                "展开查看结构化执行轨迹",
+                                "show-analysis-timeline",
+                                "analysis-timeline-node",
+                                "$.analysisTraceItems",
+                                "analysisTraceItems",
+                                false,
+                                fallbackTraceItems(),
+                                "应为包含 stage、status、message、nextAction 的非空对象列表；缺失/为空时使用 fallbackValue。",
+                                "缺失或为空时应用 fallbackValue，保持时间线可展示。",
+                                "fallback",
+                                true,
+                                "已使用默认结构化轨迹，可继续展示时间线。",
+                                "none",
+                                "无需升级；缺失或为空时使用 fallbackValue 继续展示。",
+                                "无需升级：已使用默认结构化轨迹继续展示。",
+                                90,
+                                "fallback",
+                                "自动降级继续",
+                                "agent-runtime#safe-fallback",
+                                "agent-runtime-runbook#trace-items-fallback",
+                                "补写默认结构化轨迹后继续展示。",
+                                "Agent 运行时",
+                                "调试面板展示默认结构化轨迹并保留继续处理入口。",
+                                "ApiDocAnalyzerService.analysisTraceItems",
+                                readyTraceItemsExample(),
+                                needsInputTraceItemsExample())));
     }
 
     private Map<String, Object> fallbackReviewPromptVariables() {
@@ -323,6 +363,33 @@ public class ApiDocDebugSchemaService {
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);
+        return values;
+    }
+
+    private List<Map<String, Object>> fallbackTraceItems() {
+        return List.of(traceItem("route", "NEEDS_INPUT", "请重新运行 /api-docs/analyze 获取结构化轨迹。",
+                "补充有效 OpenAPI/Swagger JSON。"));
+    }
+
+    private List<Map<String, Object>> readyTraceItemsExample() {
+        return List.of(
+                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。"),
+                traceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。", "进入 API 风险审查。"));
+    }
+
+    private List<Map<String, Object>> needsInputTraceItemsExample() {
+        return List.of(
+                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。"),
+                traceItem("route", "NEEDS_INPUT", "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
+                        "补充有效 OpenAPI/Swagger JSON。"));
+    }
+
+    private Map<String, Object> traceItem(String stage, String status, String message, String nextAction) {
+        Map<String, Object> values = new LinkedHashMap<>();
+        values.put("stage", stage);
+        values.put("status", status);
+        values.put("message", message);
+        values.put("nextAction", nextAction);
         return values;
     }
 }
