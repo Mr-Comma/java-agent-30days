@@ -4,5 +4,6 @@ public record ApiAnalysisTraceItem(
         String stage,
         String status,
         String message,
-        String nextAction) {
+        String nextAction,
+        String nextActionCode) {
 }

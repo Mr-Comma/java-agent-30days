@@ -215,12 +215,14 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 0 个。"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].nextAction").value("检查接口解析结果。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].nextActionCode").value("INSPECT_PARSED_ENDPOINTS"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].status").value("NEEDS_INPUT"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].message")
                         .value("workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].nextAction")
-                        .value("补充有效 OpenAPI/Swagger JSON。"));
+                        .value("补充有效 OpenAPI/Swagger JSON。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].nextActionCode").value("COLLECT_OPENAPI_INPUT"));
     }
 
     @Test
@@ -255,10 +257,12 @@ class ApiDocControllerTest {
                 .andExpect(jsonPath("$.analysisTraceItems[0].status").value("DONE"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].message").value("识别接口 1 个。"))
                 .andExpect(jsonPath("$.analysisTraceItems[0].nextAction").value("检查接口解析结果。"))
+                .andExpect(jsonPath("$.analysisTraceItems[0].nextActionCode").value("INSPECT_PARSED_ENDPOINTS"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].stage").value("route"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].status").value("READY"))
                 .andExpect(jsonPath("$.analysisTraceItems[3].message")
                         .value("workflowStatus=READY，suggestedTool=api-risk-reviewer。"))
-                .andExpect(jsonPath("$.analysisTraceItems[3].nextAction").value("进入 API 风险审查。"));
+                .andExpect(jsonPath("$.analysisTraceItems[3].nextAction").value("进入 API 风险审查。"))
+                .andExpect(jsonPath("$.analysisTraceItems[3].nextActionCode").value("START_API_RISK_REVIEW"));
     }
 }

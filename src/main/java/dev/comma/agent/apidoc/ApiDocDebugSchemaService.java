@@ -300,7 +300,7 @@ public class ApiDocDebugSchemaService {
                                 true,
                                 "输出结构化执行轨迹，route 状态为 READY",
                                 "输出结构化执行轨迹，route 状态为 NEEDS_INPUT",
-                                "给前端时间线或 Agent 编排层按 stage/status/message/nextAction 展示执行过程",
+                                "给前端时间线或 Agent 编排层按 stage/status/message/nextAction/nextActionCode 展示执行过程",
                                 80,
                                 "trace",
                                 "结构化分析轨迹",
@@ -315,7 +315,7 @@ public class ApiDocDebugSchemaService {
                                 "analysisTraceItems",
                                 false,
                                 fallbackTraceItems(),
-                                "应为包含 stage、status、message、nextAction 的非空对象列表；缺失/为空时使用 fallbackValue。",
+                                "应为包含 stage、status、message、nextAction、nextActionCode 的非空对象列表；缺失/为空时使用 fallbackValue。",
                                 "缺失或为空时应用 fallbackValue，保持时间线可展示。",
                                 "fallback",
                                 true,
@@ -368,28 +368,31 @@ public class ApiDocDebugSchemaService {
 
     private List<Map<String, Object>> fallbackTraceItems() {
         return List.of(traceItem("route", "NEEDS_INPUT", "请重新运行 /api-docs/analyze 获取结构化轨迹。",
-                "补充有效 OpenAPI/Swagger JSON。"));
+                "补充有效 OpenAPI/Swagger JSON。", "COLLECT_OPENAPI_INPUT"));
     }
 
     private List<Map<String, Object>> readyTraceItemsExample() {
         return List.of(
-                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。"),
-                traceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。", "进入 API 风险审查。"));
+                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
+                traceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。", "进入 API 风险审查。",
+                        "START_API_RISK_REVIEW"));
     }
 
     private List<Map<String, Object>> needsInputTraceItemsExample() {
         return List.of(
-                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。"),
+                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
                 traceItem("route", "NEEDS_INPUT", "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
-                        "补充有效 OpenAPI/Swagger JSON。"));
+                        "补充有效 OpenAPI/Swagger JSON。", "COLLECT_OPENAPI_INPUT"));
     }
 
-    private Map<String, Object> traceItem(String stage, String status, String message, String nextAction) {
+    private Map<String, Object> traceItem(String stage, String status, String message, String nextAction,
+            String nextActionCode) {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("stage", stage);
         values.put("status", status);
         values.put("message", message);
         values.put("nextAction", nextAction);
+        values.put("nextActionCode", nextActionCode);
         return values;
     }
 }

@@ -359,14 +359,14 @@ public class ApiDocAnalyzerService {
     private List<ApiAnalysisTraceItem> analysisTraceItems(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
             List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
         return List.of(
-                new ApiAnalysisTraceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。", "检查接口解析结果。"),
-                new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 " + modules.size() + " 个。", "查看模块聚合结果。"),
-                new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。", "按审查优先级执行。"),
+                new ApiAnalysisTraceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
+                new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 " + modules.size() + " 个。", "查看模块聚合结果。", "REVIEW_MODULE_SUMMARY"),
+                new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。", "按审查优先级执行。", "EXECUTE_REVIEW_PRIORITY"),
                 new ApiAnalysisTraceItem("route", workflowStatus,
                         "workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
-                        traceRouteNextAction(workflowStatus)),
+                        traceRouteNextAction(workflowStatus), traceRouteNextActionCode(workflowStatus)),
                 new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 " + advices.size() + " 条。",
-                        "查看风险提示和测试建议。"));
+                        "查看风险提示和测试建议。", "REVIEW_RISK_AND_TEST_ADVICE"));
     }
 
     private String traceRouteNextAction(String workflowStatus) {
@@ -374,6 +374,13 @@ public class ApiDocAnalyzerService {
             return "补充有效 OpenAPI/Swagger JSON。";
         }
         return "进入 API 风险审查。";
+    }
+
+    private String traceRouteNextActionCode(String workflowStatus) {
+        if ("NEEDS_INPUT".equals(workflowStatus)) {
+            return "COLLECT_OPENAPI_INPUT";
+        }
+        return "START_API_RISK_REVIEW";
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
