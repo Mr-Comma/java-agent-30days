@@ -13,6 +13,7 @@ public class ApiDocDebugSchemaService {
                 "/api-docs/analyze",
                 "v1",
                 "api-docs-agent",
+                ApiAnalysisNextActionCode.allowedValues(),
                 List.of(
                         new ApiDocDebugField(
                                 "workflowStatus",
@@ -368,31 +369,33 @@ public class ApiDocDebugSchemaService {
 
     private List<Map<String, Object>> fallbackTraceItems() {
         return List.of(traceItem("route", "NEEDS_INPUT", "请重新运行 /api-docs/analyze 获取结构化轨迹。",
-                "补充有效 OpenAPI/Swagger JSON。", "COLLECT_OPENAPI_INPUT"));
+                "补充有效 OpenAPI/Swagger JSON。", ApiAnalysisNextActionCode.COLLECT_OPENAPI_INPUT));
     }
 
     private List<Map<String, Object>> readyTraceItemsExample() {
         return List.of(
-                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
+                traceItem("parse", "DONE", "识别接口 2 个。", "检查接口解析结果。",
+                        ApiAnalysisNextActionCode.INSPECT_PARSED_ENDPOINTS),
                 traceItem("route", "READY", "workflowStatus=READY，suggestedTool=api-risk-reviewer。", "进入 API 风险审查。",
-                        "START_API_RISK_REVIEW"));
+                        ApiAnalysisNextActionCode.START_API_RISK_REVIEW));
     }
 
     private List<Map<String, Object>> needsInputTraceItemsExample() {
         return List.of(
-                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
+                traceItem("parse", "DONE", "识别接口 0 个。", "检查接口解析结果。",
+                        ApiAnalysisNextActionCode.INSPECT_PARSED_ENDPOINTS),
                 traceItem("route", "NEEDS_INPUT", "workflowStatus=NEEDS_INPUT，suggestedTool=openapi-input-validator。",
-                        "补充有效 OpenAPI/Swagger JSON。", "COLLECT_OPENAPI_INPUT"));
+                        "补充有效 OpenAPI/Swagger JSON。", ApiAnalysisNextActionCode.COLLECT_OPENAPI_INPUT));
     }
 
     private Map<String, Object> traceItem(String stage, String status, String message, String nextAction,
-            String nextActionCode) {
+            ApiAnalysisNextActionCode nextActionCode) {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("stage", stage);
         values.put("status", status);
         values.put("message", message);
         values.put("nextAction", nextAction);
-        values.put("nextActionCode", nextActionCode);
+        values.put("nextActionCode", nextActionCode.name());
         return values;
     }
 }

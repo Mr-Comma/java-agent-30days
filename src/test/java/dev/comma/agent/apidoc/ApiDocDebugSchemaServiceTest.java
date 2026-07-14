@@ -18,6 +18,14 @@ class ApiDocDebugSchemaServiceTest {
         assertThat(response.endpoint()).isEqualTo("/api-docs/analyze");
         assertThat(response.schemaVersion()).isEqualTo("v1");
         assertThat(response.contractOwner()).isEqualTo("api-docs-agent");
+        assertThat(response.nextActionCodeAllowedValues())
+                .containsExactly(
+                        "INSPECT_PARSED_ENDPOINTS",
+                        "REVIEW_MODULE_SUMMARY",
+                        "EXECUTE_REVIEW_PRIORITY",
+                        "START_API_RISK_REVIEW",
+                        "COLLECT_OPENAPI_INPUT",
+                        "REVIEW_RISK_AND_TEST_ADVICE");
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::name)
                 .containsExactly(

@@ -6,5 +6,6 @@ public record ApiDocDebugSchemaResponse(
         String endpoint,
         String schemaVersion,
         String contractOwner,
+        List<String> nextActionCodeAllowedValues,
         List<ApiDocDebugField> fields) {
 }

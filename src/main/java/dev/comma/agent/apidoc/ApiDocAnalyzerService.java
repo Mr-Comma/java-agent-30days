@@ -359,14 +359,22 @@ public class ApiDocAnalyzerService {
     private List<ApiAnalysisTraceItem> analysisTraceItems(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
             List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
         return List.of(
-                new ApiAnalysisTraceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。", "检查接口解析结果。", "INSPECT_PARSED_ENDPOINTS"),
-                new ApiAnalysisTraceItem("aggregate", "DONE", "聚合模块 " + modules.size() + " 个。", "查看模块聚合结果。", "REVIEW_MODULE_SUMMARY"),
-                new ApiAnalysisTraceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。", "按审查优先级执行。", "EXECUTE_REVIEW_PRIORITY"),
-                new ApiAnalysisTraceItem("route", workflowStatus,
+                traceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。", "检查接口解析结果。",
+                        ApiAnalysisNextActionCode.INSPECT_PARSED_ENDPOINTS),
+                traceItem("aggregate", "DONE", "聚合模块 " + modules.size() + " 个。", "查看模块聚合结果。",
+                        ApiAnalysisNextActionCode.REVIEW_MODULE_SUMMARY),
+                traceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。", "按审查优先级执行。",
+                        ApiAnalysisNextActionCode.EXECUTE_REVIEW_PRIORITY),
+                traceItem("route", workflowStatus,
                         "workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
                         traceRouteNextAction(workflowStatus), traceRouteNextActionCode(workflowStatus)),
-                new ApiAnalysisTraceItem("advise", "DONE", "生成风险提示和测试建议 " + advices.size() + " 条。",
-                        "查看风险提示和测试建议。", "REVIEW_RISK_AND_TEST_ADVICE"));
+                traceItem("advise", "DONE", "生成风险提示和测试建议 " + advices.size() + " 条。",
+                        "查看风险提示和测试建议。", ApiAnalysisNextActionCode.REVIEW_RISK_AND_TEST_ADVICE));
+    }
+
+    private ApiAnalysisTraceItem traceItem(String stage, String status, String message, String nextAction,
+            ApiAnalysisNextActionCode nextActionCode) {
+        return new ApiAnalysisTraceItem(stage, status, message, nextAction, nextActionCode.name());
     }
 
     private String traceRouteNextAction(String workflowStatus) {
@@ -376,11 +384,11 @@ public class ApiDocAnalyzerService {
         return "进入 API 风险审查。";
     }
 
-    private String traceRouteNextActionCode(String workflowStatus) {
+    private ApiAnalysisNextActionCode traceRouteNextActionCode(String workflowStatus) {
         if ("NEEDS_INPUT".equals(workflowStatus)) {
-            return "COLLECT_OPENAPI_INPUT";
+            return ApiAnalysisNextActionCode.COLLECT_OPENAPI_INPUT;
         }
-        return "START_API_RISK_REVIEW";
+        return ApiAnalysisNextActionCode.START_API_RISK_REVIEW;
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
