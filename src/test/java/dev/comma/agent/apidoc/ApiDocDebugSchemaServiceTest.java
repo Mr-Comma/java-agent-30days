@@ -26,6 +26,13 @@ class ApiDocDebugSchemaServiceTest {
                         "START_API_RISK_REVIEW",
                         "COLLECT_OPENAPI_INPUT",
                         "REVIEW_RISK_AND_TEST_ADVICE");
+        assertThat(response.nextActionCodesByStage())
+                .containsExactly(
+                        Map.entry("parse", List.of("INSPECT_PARSED_ENDPOINTS")),
+                        Map.entry("aggregate", List.of("REVIEW_MODULE_SUMMARY")),
+                        Map.entry("prioritize", List.of("EXECUTE_REVIEW_PRIORITY")),
+                        Map.entry("route", List.of("START_API_RISK_REVIEW", "COLLECT_OPENAPI_INPUT")),
+                        Map.entry("advise", List.of("REVIEW_RISK_AND_TEST_ADVICE")));
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::name)
                 .containsExactly(

@@ -43,7 +43,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。新增的 `analysisTraceItems` 保留相同执行轨迹的结构化形态（`stage`、`status`、`message`、`nextAction`、`nextActionCode`），方便前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态，并用稳定机器动作标识做确定性分支。`GET /api-docs/debug-schema` 的 `nextActionCodeAllowedValues` 公开 `nextActionCode` 的完整允许值列表，调用方可直接做契约校验；该端点还会返回调试字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。新增的 `analysisTraceItems` 保留相同执行轨迹的结构化形态（`stage`、`status`、`message`、`nextAction`、`nextActionCode`），方便前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态，并用稳定机器动作标识做确定性分支。`GET /api-docs/debug-schema` 的 `nextActionCodeAllowedValues` 公开 `nextActionCode` 的完整允许值列表，`nextActionCodesByStage` 公开阶段与合法动作编码的稳定映射，调用方可同时校验 code 是否全局合法、是否适用于当前 stage；该端点还会返回调试字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
 
 `debug-schema` 的响应结构稳定面向前端和 Agent 编排层；本轮也把 `analysisTraceItems` 纳入 schema 字段清单，声明它的 `array<object>` 类型、时间线渲染建议、fallback 轨迹和 READY/NEEDS_INPUT 示例：
 
@@ -60,6 +60,13 @@ curl http://localhost:8080/api-docs/debug-schema
     "COLLECT_OPENAPI_INPUT",
     "REVIEW_RISK_AND_TEST_ADVICE"
   ],
+  "nextActionCodesByStage": {
+    "parse": ["INSPECT_PARSED_ENDPOINTS"],
+    "aggregate": ["REVIEW_MODULE_SUMMARY"],
+    "prioritize": ["EXECUTE_REVIEW_PRIORITY"],
+    "route": ["START_API_RISK_REVIEW", "COLLECT_OPENAPI_INPUT"],
+    "advise": ["REVIEW_RISK_AND_TEST_ADVICE"]
+  },
   "fields": [
     {
       "name": "workflowStatus",
@@ -241,7 +248,7 @@ curl http://localhost:8080/api-docs/debug-schema
 }
 ```
 
-`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`nextActionCodeAllowedValues` 由 Java 枚举集中生成，列出结构化轨迹允许使用的全部机器动作编码，编排层可以据此拒绝未知 code。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`missingFieldPolicy`、`policySeverity`、`retryable`、`operatorMessage`、`failureEscalation`、`escalationCondition`、`failureEscalationMessage`、`escalationPriority`、`escalationCategory`、`escalationSla`、`escalationContact`、`escalationRunbook`、`runbookStep`、`escalationOwnerRole`、`runbookExpectedOutcome`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、缺字段处理策略、策略级别、自动重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级排序、升级分类、响应期望、升级联系入口、Runbook 入口、Runbook 步骤、升级责任角色、Runbook 预期结果、来源定位和双路径最小样例。
+`schemaVersion` 用来标识这份调试字段契约的版本，前端或 Agent 编排层可以据此判断字段说明是否兼容当前渲染逻辑。`contractOwner` 标识这份契约由 API 文档助手维护，便于调试面板或编排层在多份 schema 中归属责任边界。`nextActionCodeAllowedValues` 由 Java 枚举集中生成，列出结构化轨迹允许使用的全部机器动作编码，编排层可以据此拒绝未知 code；`nextActionCodesByStage` 从同一枚举生成 stage 到合法 code 列表，让编排层进一步拒绝阶段错配的动作编码。`jsonType`、`required`、`displayOrder`、`category`、`uiLabel`、`uiDescription`、`visibility`、`renderType`、`copyable`、`interactionHint`、`agentAction`、`targetNode`、`nodeInputPath`、`handoffPayloadKey`、`requiredForNode`、`fallbackValue`、`validationRule`、`missingFieldPolicy`、`policySeverity`、`retryable`、`operatorMessage`、`failureEscalation`、`escalationCondition`、`failureEscalationMessage`、`escalationPriority`、`escalationCategory`、`escalationSla`、`escalationContact`、`escalationRunbook`、`runbookStep`、`escalationOwnerRole`、`runbookExpectedOutcome`、`source`、`readyExampleValue` 和 `needsInputExampleValue` 让调试面板可以不用硬编码就渲染字段类型、必填提示、展示顺序、字段分组、中文标题、字段说明、默认可见性、推荐渲染组件、是否可复制、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、节点输入校验规则、缺字段处理策略、策略级别、自动重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级排序、升级分类、响应期望、升级联系入口、Runbook 入口、Runbook 步骤、升级责任角色、Runbook 预期结果、来源定位和双路径最小样例。
 
 其中 `visibility` 用于给调试面板一个默认展示建议：`summary` 字段适合在首屏直接展示，`detail` 字段适合折叠到详情区；`renderType` 用于建议字段的默认展示组件，例如状态徽标、工具链接、列表、JSON、Prompt 预览或时间线；`copyable` 则告诉前端该字段是否适合一键复制；`interactionHint` 进一步说明复制、展开或触发工具节点等默认交互；`agentAction` 给 Agent 编排层一个稳定的机器动作标识；`targetNode` 把动作映射到具体工作流节点名；`nodeInputPath` 说明节点应从 `/api-docs/analyze` 响应读取哪个字段作为输入；`handoffPayloadKey` 则说明读取后组装到节点 payload 时使用的稳定键名；`requiredForNode` 标识字段是否是目标节点执行时的默认必需输入；`fallbackValue` 说明节点缺少字段时可采用的安全降级值；`validationRule` 描述节点应用降级值前的最小输入校验规则；`missingFieldPolicy` 描述字段缺失或非法时节点应采用降级、补输入或重新分析提示；`policySeverity` 用稳定枚举区分可自动降级、需要补输入或建议重新分析；`retryable` 标识字段缺失/非法后是否适合自动重试目标节点；`operatorMessage` 给出不可自动处理或已降级后的中文操作提示；`failureEscalation` 标识不可重试或无法自动处理时应升级到的上游/人工角色；`escalationCondition` 说明触发失败升级的最小条件；`failureEscalationMessage` 给调试面板展示稳定的升级结果提示；`escalationPriority` 用数字给多个升级候选排序，数值越小越应优先处理；`escalationCategory` 则把升级候选归入 `input`、`operator`、`prompt` 或 `fallback` 等稳定分组，方便调试面板按类别筛选；`escalationSla` 给不同升级类别提供响应期望，例如当天补齐输入、当天收集 Prompt 输入或自动降级继续；`escalationContact` 给升级目标补充稳定联系入口，例如输入收集、阻塞原因处理或安全降级通道；`escalationRunbook` 进一步给出处理步骤入口，例如校验 paths、收集阻塞输入或应用安全 fallback；`runbookStep` 把该入口拆成一句可展示、可执行的下一步说明；`escalationOwnerRole` 标识处理该升级或降级步骤的中文责任角色；`runbookExpectedOutcome` 描述 Runbook 步骤完成后应看到的稳定结果。它们都只描述 UI/编排建议，不改变 `/api-docs/analyze` 的业务行为。
 

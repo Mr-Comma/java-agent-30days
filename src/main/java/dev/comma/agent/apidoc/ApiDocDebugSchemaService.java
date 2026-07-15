@@ -14,6 +14,7 @@ public class ApiDocDebugSchemaService {
                 "v1",
                 "api-docs-agent",
                 ApiAnalysisNextActionCode.allowedValues(),
+                ApiAnalysisNextActionCode.allowedValuesByStage(),
                 List.of(
                         new ApiDocDebugField(
                                 "workflowStatus",
