@@ -168,9 +168,9 @@ class ApiDocDebugSchemaServiceTest {
         assertThat(response.fields())
                 .extracting(ApiDocDebugField::validationRule)
                 .containsExactly(
-                        "值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。",
-                        "值必须为 REVIEW_READY 或 INPUT_REQUIRED；缺失/非法时使用 fallbackValue。",
-                        "值必须为 api-risk-reviewer 或 openapi-input-validator；缺失/非法时使用 fallbackValue。",
+                        "值必须为 " + ApiWorkflowStatus.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
+                        "值必须为 " + ApiWorkflowStage.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
+                        "值必须为 " + ApiSuggestedTool.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
                         "READY 时允许为 null；NEEDS_INPUT 时应为非空缺输入说明。",
                         "应为非空字符串列表；缺失/为空时使用 fallbackValue。",
                         "应包含 workflowStage、suggestedTool、blockingReason、firstReviewModule、firstReviewAction；缺失时使用 fallbackValue。",
@@ -372,7 +372,7 @@ class ApiDocDebugSchemaServiceTest {
                         "workflowStatus",
                         true,
                         "NEEDS_INPUT",
-                        "值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。",
+                        "值必须为 " + ApiWorkflowStatus.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
                         "缺失或非法时应用 fallbackValue 并路由到输入补全。",
                         "needs-input",
                         false,
@@ -477,8 +477,8 @@ class ApiDocDebugSchemaServiceTest {
 
     private Map<String, Object> fallbackReviewPromptVariables() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "INPUT_REQUIRED");
-        values.put("suggestedTool", "openapi-input-validator");
+        values.put("workflowStage", ApiWorkflowStage.INPUT_REQUIRED.value());
+        values.put("suggestedTool", ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value());
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);
@@ -487,8 +487,8 @@ class ApiDocDebugSchemaServiceTest {
 
     private Map<String, Object> readyReviewPromptVariablesExample() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "REVIEW_READY");
-        values.put("suggestedTool", "api-risk-reviewer");
+        values.put("workflowStage", ApiWorkflowStage.REVIEW_READY.value());
+        values.put("suggestedTool", ApiSuggestedTool.API_RISK_REVIEWER.value());
         values.put("blockingReason", null);
         values.put("firstReviewModule", "orders");
         values.put("firstReviewAction", "先审查删除接口、权限控制和误删保护。");
@@ -497,8 +497,8 @@ class ApiDocDebugSchemaServiceTest {
 
     private Map<String, Object> needsInputReviewPromptVariablesExample() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "INPUT_REQUIRED");
-        values.put("suggestedTool", "openapi-input-validator");
+        values.put("workflowStage", ApiWorkflowStage.INPUT_REQUIRED.value());
+        values.put("suggestedTool", ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value());
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);

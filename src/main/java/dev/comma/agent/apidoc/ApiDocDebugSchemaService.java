@@ -36,8 +36,8 @@ public class ApiDocDebugSchemaService {
                                 "$.workflowStatus",
                                 "workflowStatus",
                                 true,
-                                "NEEDS_INPUT",
-                                "值必须为 READY 或 NEEDS_INPUT；缺失/非法时使用 fallbackValue。",
+                                ApiWorkflowStatus.NEEDS_INPUT.value(),
+                                "值必须为 " + ApiWorkflowStatus.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
                                 "缺失或非法时应用 fallbackValue 并路由到输入补全。",
                                 "needs-input",
                                 false,
@@ -54,8 +54,8 @@ public class ApiDocDebugSchemaService {
                                 "OpenAPI 输入负责人",
                                 "拿到包含 paths 的有效 OpenAPI/Swagger JSON，并重新分析。",
                                 "ApiDocAnalyzerService.workflowStatus",
-                                "READY",
-                                "NEEDS_INPUT"),
+                                ApiWorkflowStatus.READY.value(),
+                                ApiWorkflowStatus.NEEDS_INPUT.value()),
                         new ApiDocDebugField(
                                 "workflowStage",
                                 "string",
@@ -76,8 +76,8 @@ public class ApiDocDebugSchemaService {
                                 "$.workflowStage",
                                 "workflowStage",
                                 true,
-                                "INPUT_REQUIRED",
-                                "值必须为 REVIEW_READY 或 INPUT_REQUIRED；缺失/非法时使用 fallbackValue。",
+                                ApiWorkflowStage.INPUT_REQUIRED.value(),
+                                "值必须为 " + ApiWorkflowStage.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
                                 "缺失或非法时应用 fallbackValue 并进入输入补全阶段。",
                                 "needs-input",
                                 false,
@@ -90,12 +90,12 @@ public class ApiDocDebugSchemaService {
                                 "当天补齐",
                                 "openapi-input-owner#docs-intake",
                                 "openapi-input-runbook#confirm-review-stage",
-                                "确认输入可进入 REVIEW_READY，否则补齐 paths。",
+                                "确认输入可进入 " + ApiWorkflowStage.REVIEW_READY.value() + "，否则补齐 paths。",
                                 "OpenAPI 输入负责人",
                                 "输入进入 REVIEW_READY，或明确返回 INPUT_REQUIRED 阶段。",
                                 "ApiDocAnalyzerService.workflowStage",
-                                "REVIEW_READY",
-                                "INPUT_REQUIRED"),
+                                ApiWorkflowStage.REVIEW_READY.value(),
+                                ApiWorkflowStage.INPUT_REQUIRED.value()),
                         new ApiDocDebugField(
                                 "suggestedTool",
                                 "string",
@@ -116,8 +116,8 @@ public class ApiDocDebugSchemaService {
                                 "$.suggestedTool",
                                 "suggestedTool",
                                 true,
-                                "openapi-input-validator",
-                                "值必须为 api-risk-reviewer 或 openapi-input-validator；缺失/非法时使用 fallbackValue。",
+                                ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value(),
+                                "值必须为 " + ApiSuggestedTool.allowedValuesText() + "；缺失/非法时使用 fallbackValue。",
                                 "缺失或非法时应用 fallbackValue，避免调用未知工具。",
                                 "fallback",
                                 true,
@@ -134,8 +134,8 @@ public class ApiDocDebugSchemaService {
                                 "Agent 运行时",
                                 "未知工具已降级为 openapi-input-validator 并继续分发。",
                                 "ApiDocAnalyzerService.suggestedTool",
-                                "api-risk-reviewer",
-                                "openapi-input-validator"),
+                                ApiSuggestedTool.API_RISK_REVIEWER.value(),
+                                ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value()),
                         new ApiDocDebugField(
                                 "blockingReason",
                                 "string|null",
@@ -340,8 +340,8 @@ public class ApiDocDebugSchemaService {
 
     private Map<String, Object> fallbackReviewPromptVariables() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "INPUT_REQUIRED");
-        values.put("suggestedTool", "openapi-input-validator");
+        values.put("workflowStage", ApiWorkflowStage.INPUT_REQUIRED.value());
+        values.put("suggestedTool", ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value());
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);
@@ -350,8 +350,8 @@ public class ApiDocDebugSchemaService {
 
     private Map<String, Object> readyReviewPromptVariablesExample() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "REVIEW_READY");
-        values.put("suggestedTool", "api-risk-reviewer");
+        values.put("workflowStage", ApiWorkflowStage.REVIEW_READY.value());
+        values.put("suggestedTool", ApiSuggestedTool.API_RISK_REVIEWER.value());
         values.put("blockingReason", null);
         values.put("firstReviewModule", "orders");
         values.put("firstReviewAction", "先审查删除接口、权限控制和误删保护。");
@@ -360,8 +360,8 @@ public class ApiDocDebugSchemaService {
 
     private Map<String, Object> needsInputReviewPromptVariablesExample() {
         Map<String, Object> values = new LinkedHashMap<>();
-        values.put("workflowStage", "INPUT_REQUIRED");
-        values.put("suggestedTool", "openapi-input-validator");
+        values.put("workflowStage", ApiWorkflowStage.INPUT_REQUIRED.value());
+        values.put("suggestedTool", ApiSuggestedTool.OPENAPI_INPUT_VALIDATOR.value());
         values.put("blockingReason", "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         values.put("firstReviewModule", null);
         values.put("firstReviewAction", null);

@@ -27,6 +27,8 @@ class ReadmeApiDocExampleTest {
     void documentsDebugSchemaResponseExample() throws IOException {
         String readme = Files.readString(Path.of("README.md"), StandardCharsets.UTF_8);
 
+        assertThat(readme).contains("工作流路由契约已集中到 `ApiWorkflowStatus`、`ApiWorkflowStage` 和 `ApiSuggestedTool` 枚举");
+        assertThat(readme).contains("由状态统一映射阶段、建议工具和 route 动作编码");
         assertThat(readme).contains("`/api-docs/analyze` 的响应里可以重点看这几个调试字段");
         assertThat(readme).contains("`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤");
         assertThat(readme).contains("路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果");

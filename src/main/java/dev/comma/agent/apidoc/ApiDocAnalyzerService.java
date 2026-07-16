@@ -22,7 +22,7 @@ public class ApiDocAnalyzerService {
                 .toList();
         List<ApiModuleSummary> modules = modules(parseResponse.endpoints());
         List<ApiReviewStep> reviewPlan = reviewPlan(modules);
-        String workflowStatus = workflowStatus(parseResponse.endpoints());
+        ApiWorkflowStatus workflowStatus = workflowStatus(parseResponse.endpoints());
         ReviewPromptVariables reviewPromptVariables = reviewPromptVariables(workflowStatus, reviewPlan);
         return new ApiDocAnalysisResponse(
                 parseResponse.endpointCount(),
@@ -31,9 +31,9 @@ public class ApiDocAnalyzerService {
                 analysisRole(),
                 analysisFacts(parseResponse.endpoints(), modules, reviewPlan),
                 analysisFactItems(parseResponse.endpoints(), modules, reviewPlan),
-                workflowStatus,
-                workflowStage(workflowStatus),
-                suggestedTool(workflowStatus),
+                workflowStatus.value(),
+                workflowStatus.stageValue(),
+                workflowStatus.suggestedToolValue(),
                 reviewPromptTemplate(reviewPromptVariables),
                 reviewPromptVariables,
                 reviewPromptPreview(reviewPromptVariables),
@@ -197,25 +197,8 @@ public class ApiDocAnalyzerService {
                 new ApiAnalysisFact("firstReviewAction", reviewPlan.get(0).action()));
     }
 
-    private String workflowStatus(List<ApiEndpoint> endpoints) {
-        if (endpoints.isEmpty()) {
-            return "NEEDS_INPUT";
-        }
-        return "READY";
-    }
-
-    private String workflowStage(String workflowStatus) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
-            return "INPUT_REQUIRED";
-        }
-        return "REVIEW_READY";
-    }
-
-    private String suggestedTool(String workflowStatus) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
-            return "openapi-input-validator";
-        }
-        return "api-risk-reviewer";
+    private ApiWorkflowStatus workflowStatus(List<ApiEndpoint> endpoints) {
+        return ApiWorkflowStatus.fromEndpointCount(endpoints.size());
     }
 
     private String reviewPromptTemplate(ReviewPromptVariables variables) {
@@ -245,11 +228,11 @@ public class ApiDocAnalyzerService {
                 + trimTrailingSentenceEnd(variables.firstReviewAction()) + "；" + variables.expectedOutputInstruction();
     }
 
-    private ReviewPromptVariables reviewPromptVariables(String workflowStatus, List<ApiReviewStep> reviewPlan) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private ReviewPromptVariables reviewPromptVariables(ApiWorkflowStatus workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
             return new ReviewPromptVariables(
-                    workflowStage(workflowStatus),
-                    suggestedTool(workflowStatus),
+                    workflowStatus.stageValue(),
+                    workflowStatus.suggestedToolValue(),
                     blockingReason(workflowStatus),
                     null,
                     null,
@@ -258,15 +241,15 @@ public class ApiDocAnalyzerService {
         return reviewPlan.stream()
                 .findFirst()
                 .map(step -> new ReviewPromptVariables(
-                        workflowStage(workflowStatus),
-                        suggestedTool(workflowStatus),
+                        workflowStatus.stageValue(),
+                        workflowStatus.suggestedToolValue(),
                         null,
                         step.module(),
                         step.action(),
                         "请输出风险说明、测试建议和下一步行动。"))
                 .orElse(new ReviewPromptVariables(
-                        workflowStage(workflowStatus),
-                        suggestedTool(workflowStatus),
+                        workflowStatus.stageValue(),
+                        workflowStatus.suggestedToolValue(),
                         null,
                         null,
                         null,
@@ -280,8 +263,8 @@ public class ApiDocAnalyzerService {
         return text;
     }
 
-    private String recommendedNextAction(String workflowStatus, List<ApiReviewStep> reviewPlan) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private String recommendedNextAction(ApiWorkflowStatus workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
             return "请先补充包含 paths 的 OpenAPI/Swagger JSON，再启动 API 风险审查。";
         }
         return reviewPlan.stream()
@@ -290,26 +273,26 @@ public class ApiDocAnalyzerService {
                 .orElse("请先确认解析结果，再启动 API 风险审查。");
     }
 
-    private List<String> debugHints(String workflowStatus, List<ApiReviewStep> reviewPlan) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private List<String> debugHints(ApiWorkflowStatus workflowStatus, List<ApiReviewStep> reviewPlan) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
             return List.of(
-                    "状态：NEEDS_INPUT，暂不进入风险审查。",
-                    "工具：调用 openapi-input-validator 校验输入。",
+                    "状态：" + workflowStatus.value() + "，暂不进入风险审查。",
+                    "工具：调用 " + workflowStatus.suggestedToolValue() + " 校验输入。",
                     "原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。");
         }
         return reviewPlan.stream()
                 .findFirst()
                 .map(step -> List.of(
-                        "状态：READY，可以进入 API 风险审查。",
-                        "工具：调用 api-risk-reviewer 执行首个审查动作。",
+                        "状态：" + workflowStatus.value() + "，可以进入 API 风险审查。",
+                        "工具：调用 " + workflowStatus.suggestedToolValue() + " 执行首个审查动作。",
                         "首个动作：P" + step.priority() + " 审查 " + step.module() + " 模块，" + step.action()))
                 .orElse(List.of(
-                        "状态：READY，但未生成审查计划。",
-                        "工具：调用 api-risk-reviewer 前先确认解析结果。"));
+                        "状态：" + workflowStatus.value() + "，但未生成审查计划。",
+                        "工具：调用 " + workflowStatus.suggestedToolValue() + " 前先确认解析结果。"));
     }
 
-    private String blockingReason(String workflowStatus) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private String blockingReason(ApiWorkflowStatus workflowStatus) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
             return "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。";
         }
         return null;
@@ -347,17 +330,18 @@ public class ApiDocAnalyzerService {
     }
 
     private List<String> analysisTrace(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
-            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
+            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, ApiWorkflowStatus workflowStatus) {
         return List.of(
                 "parse: 识别接口 " + endpoints.size() + " 个。",
                 "aggregate: 聚合模块 " + modules.size() + " 个。",
                 "prioritize: 生成审查步骤 " + reviewPlan.size() + " 个。",
-                "route: workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
+                "route: workflowStatus=" + workflowStatus.value() + "，suggestedTool="
+                        + workflowStatus.suggestedToolValue() + "。",
                 "advise: 生成风险提示和测试建议 " + advices.size() + " 条。");
     }
 
     private List<ApiAnalysisTraceItem> analysisTraceItems(List<ApiEndpoint> endpoints, List<ApiModuleSummary> modules,
-            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, String workflowStatus) {
+            List<ApiReviewStep> reviewPlan, List<ApiEndpointAdvice> advices, ApiWorkflowStatus workflowStatus) {
         return List.of(
                 traceItem("parse", "DONE", "识别接口 " + endpoints.size() + " 个。", "检查接口解析结果。",
                         ApiAnalysisNextActionCode.INSPECT_PARSED_ENDPOINTS),
@@ -365,9 +349,10 @@ public class ApiDocAnalyzerService {
                         ApiAnalysisNextActionCode.REVIEW_MODULE_SUMMARY),
                 traceItem("prioritize", "DONE", "生成审查步骤 " + reviewPlan.size() + " 个。", "按审查优先级执行。",
                         ApiAnalysisNextActionCode.EXECUTE_REVIEW_PRIORITY),
-                traceItem("route", workflowStatus,
-                        "workflowStatus=" + workflowStatus + "，suggestedTool=" + suggestedTool(workflowStatus) + "。",
-                        traceRouteNextAction(workflowStatus), traceRouteNextActionCode(workflowStatus)),
+                traceItem("route", workflowStatus.value(),
+                        "workflowStatus=" + workflowStatus.value() + "，suggestedTool="
+                                + workflowStatus.suggestedToolValue() + "。",
+                        traceRouteNextAction(workflowStatus), workflowStatus.routeNextActionCode()),
                 traceItem("advise", "DONE", "生成风险提示和测试建议 " + advices.size() + " 条。",
                         "查看风险提示和测试建议。", ApiAnalysisNextActionCode.REVIEW_RISK_AND_TEST_ADVICE));
     }
@@ -377,18 +362,11 @@ public class ApiDocAnalyzerService {
         return new ApiAnalysisTraceItem(stage, status, message, nextAction, nextActionCode.name());
     }
 
-    private String traceRouteNextAction(String workflowStatus) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
+    private String traceRouteNextAction(ApiWorkflowStatus workflowStatus) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
             return "补充有效 OpenAPI/Swagger JSON。";
         }
         return "进入 API 风险审查。";
-    }
-
-    private ApiAnalysisNextActionCode traceRouteNextActionCode(String workflowStatus) {
-        if ("NEEDS_INPUT".equals(workflowStatus)) {
-            return ApiAnalysisNextActionCode.COLLECT_OPENAPI_INPUT;
-        }
-        return ApiAnalysisNextActionCode.START_API_RISK_REVIEW;
     }
 
     private String analysisTask(List<ApiReviewStep> reviewPlan) {
