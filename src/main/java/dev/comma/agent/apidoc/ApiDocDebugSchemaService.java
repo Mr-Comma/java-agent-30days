@@ -13,6 +13,9 @@ public class ApiDocDebugSchemaService {
                 "/api-docs/analyze",
                 "v1",
                 "api-docs-agent",
+                ApiWorkflowStatus.allowedValues(),
+                ApiWorkflowStage.allowedValues(),
+                ApiSuggestedTool.allowedValues(),
                 ApiAnalysisNextActionCode.allowedValues(),
                 ApiAnalysisNextActionCode.allowedValuesByStage(),
                 List.of(

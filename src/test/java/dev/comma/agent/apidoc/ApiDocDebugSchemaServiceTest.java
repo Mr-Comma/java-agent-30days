@@ -18,6 +18,12 @@ class ApiDocDebugSchemaServiceTest {
         assertThat(response.endpoint()).isEqualTo("/api-docs/analyze");
         assertThat(response.schemaVersion()).isEqualTo("v1");
         assertThat(response.contractOwner()).isEqualTo("api-docs-agent");
+        assertThat(response.workflowStatusAllowedValues())
+                .containsExactly("READY", "NEEDS_INPUT");
+        assertThat(response.workflowStageAllowedValues())
+                .containsExactly("REVIEW_READY", "INPUT_REQUIRED");
+        assertThat(response.suggestedToolAllowedValues())
+                .containsExactly("api-risk-reviewer", "openapi-input-validator");
         assertThat(response.nextActionCodeAllowedValues())
                 .containsExactly(
                         "INSPECT_PARSED_ENDPOINTS",

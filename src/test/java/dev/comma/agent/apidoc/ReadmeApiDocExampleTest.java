@@ -37,11 +37,16 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态");
         assertThat(readme).contains("稳定机器动作标识做确定性分支");
         assertThat(readme).contains("`nextActionCodeAllowedValues` 公开 `nextActionCode` 的完整允许值列表");
+        assertThat(readme).contains("`workflowStatusAllowedValues`、`workflowStageAllowedValues` 和 `suggestedToolAllowedValues` 会在顶层公开路由三件套允许值");
+        assertThat(readme).contains("调用方不用扫描字段表也能校验状态、阶段和工具名");
         assertThat(readme).contains("`nextActionCodesByStage` 公开阶段与合法动作编码的稳定映射");
-        assertThat(readme).contains("`debug-schema` 的响应结构稳定面向前端和 Agent 编排层；本轮也把 `analysisTraceItems` 纳入 schema 字段清单");
+        assertThat(readme).contains("`debug-schema` 的响应结构稳定面向前端和 Agent 编排层；本轮也把顶层路由允许值列表纳入 schema");
         assertThat(readme).contains("\"endpoint\": \"/api-docs/analyze\"");
         assertThat(readme).contains("\"schemaVersion\": \"v1\"");
         assertThat(readme).contains("\"contractOwner\": \"api-docs-agent\"");
+        assertThat(readme).contains("\"workflowStatusAllowedValues\": [\"READY\", \"NEEDS_INPUT\"]");
+        assertThat(readme).contains("\"workflowStageAllowedValues\": [\"REVIEW_READY\", \"INPUT_REQUIRED\"]");
+        assertThat(readme).contains("\"suggestedToolAllowedValues\": [\"api-risk-reviewer\", \"openapi-input-validator\"]");
         assertThat(readme).contains("\"nextActionCodeAllowedValues\": [");
         assertThat(readme).contains("\"INSPECT_PARSED_ENDPOINTS\",");
         assertThat(readme).contains("\"REVIEW_MODULE_SUMMARY\",");
@@ -54,6 +59,7 @@ class ReadmeApiDocExampleTest {
         assertThat(readme).contains("\"route\": [\"START_API_RISK_REVIEW\", \"COLLECT_OPENAPI_INPUT\"]");
         assertThat(readme).contains("\"advise\": [\"REVIEW_RISK_AND_TEST_ADVICE\"]");
         assertThat(readme).contains("`contractOwner` 标识这份契约由 API 文档助手维护");
+        assertThat(readme).contains("`workflowStatusAllowedValues`、`workflowStageAllowedValues` 和 `suggestedToolAllowedValues`");
         assertThat(readme).contains("\"fields\": [");
         assertThat(readme).contains("\"name\": \"workflowStatus\"");
         assertThat(readme).contains("\"jsonType\": \"string\"");
