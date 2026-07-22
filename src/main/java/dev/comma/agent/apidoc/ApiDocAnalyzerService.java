@@ -34,6 +34,7 @@ public class ApiDocAnalyzerService {
                 workflowStatus.value(),
                 workflowStatus.stageValue(),
                 workflowStatus.suggestedToolValue(),
+                toolCallPlan(workflowStatus),
                 reviewPromptTemplate(reviewPromptVariables),
                 reviewPromptVariables,
                 reviewPromptPreview(reviewPromptVariables),
@@ -199,6 +200,19 @@ public class ApiDocAnalyzerService {
 
     private ApiWorkflowStatus workflowStatus(List<ApiEndpoint> endpoints) {
         return ApiWorkflowStatus.fromEndpointCount(endpoints.size());
+    }
+
+    private ApiToolCallPlan toolCallPlan(ApiWorkflowStatus workflowStatus) {
+        if (workflowStatus == ApiWorkflowStatus.NEEDS_INPUT) {
+            return new ApiToolCallPlan(
+                    workflowStatus.suggestedToolValue(),
+                    "校验 OpenAPI/Swagger JSON 并补齐可解析的 paths。",
+                    List.of("blockingReason"));
+        }
+        return new ApiToolCallPlan(
+                workflowStatus.suggestedToolValue(),
+                "按首要模块执行 API 风险审查。",
+                List.of("topPriorityModule", "reviewPromptVariables"));
     }
 
     private String reviewPromptTemplate(ReviewPromptVariables variables) {

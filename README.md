@@ -26,7 +26,7 @@ Java Agent API 文档助手：输入 Swagger / Knife4j 地址，自动识别模�
 
 本仓库已包含一个最小 Spring Boot Agent 骨架，当前先用 mock 响应保留 `/chat` 入口，并支持识别时间问题后调用内置 `time` 工具；mock agent 的角色名和空 prompt 默认问题可通过 `src/main/resources/application.yml` 的 `agent.chat` 配置调整。`/chat` 还支持用 `sessionId` 做最小内存上下文，响应会返回当前轮次和上一轮 prompt。
 
-API 文档助手方向已增加一个最小 OpenAPI/Swagger JSON 解析入口：`POST /api-docs/parse` 会从 `paths` 中抽取接口方法、路径和摘要；`POST /api-docs/analyze` 会基于解析出的接口生成确定性的中文摘要、模块聚合视图、模块风险等级、模块风险分布、模块审查优先级、最小审查计划、首要审查模块、审查排序原因、Agent 分析角色、人类可读事实、结构化事实列表、工作流状态、工作流阶段、建议工具、审查 Prompt 模板、审查 Prompt 变量、审查 Prompt 预览、阻塞原因、推荐下一步行动、拆分后的任务目标/约束/期望输出、工作流执行清单、分析轨迹、结构化分析轨迹、任务、风险提示和测试建议 mock，作为后续接入 LLM 分析与工作流编排前的稳定领域能力。工作流路由契约已集中到 `ApiWorkflowStatus`、`ApiWorkflowStage` 和 `ApiSuggestedTool` 枚举，由状态统一映射阶段、建议工具和 route 动作编码，避免分析响应与 debug schema 的字符串漂移。后续逐步替换为真实 LLM、流式输出和更多工具调用。
+API 文档助手方向已增加一个最小 OpenAPI/Swagger JSON 解析入口：`POST /api-docs/parse` 会从 `paths` 中抽取接口方法、路径和摘要；`POST /api-docs/analyze` 会基于解析出的接口生成确定性的中文摘要、模块聚合视图、模块风险等级、模块风险分布、模块审查优先级、最小审查计划、首要审查模块、审查排序原因、Agent 分析角色、人类可读事实、结构化事实列表、工作流状态、工作流阶段、建议工具、最小工具调用计划、审查 Prompt 模板、审查 Prompt 变量、审查 Prompt 预览、阻塞原因、推荐下一步行动、拆分后的任务目标/约束/期望输出、工作流执行清单、分析轨迹、结构化分析轨迹、任务、风险提示和测试建议 mock，作为后续接入 LLM 分析与工作流编排前的稳定领域能力。工作流路由契约已集中到 `ApiWorkflowStatus`、`ApiWorkflowStage` 和 `ApiSuggestedTool` 枚举，由状态统一映射阶段、建议工具和 route 动作编码，避免分析响应与 debug schema 的字符串漂移。后续逐步替换为真实 LLM、流式输出和更多工具调用。
 
 ```bash
 mvn test
@@ -43,7 +43,7 @@ curl -X POST http://localhost:8080/api-docs/analyze \
 curl http://localhost:8080/api-docs/debug-schema
 ```
 
-`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。新增的 `analysisTraceItems` 保留相同执行轨迹的结构化形态（`stage`、`status`、`message`、`nextAction`、`nextActionCode`），方便前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态，并用稳定机器动作标识做确定性分支。`GET /api-docs/debug-schema` 的 `workflowStatusAllowedValues`、`workflowStageAllowedValues` 和 `suggestedToolAllowedValues` 会在顶层公开路由三件套允许值，调用方不用扫描字段表也能校验状态、阶段和工具名；`nextActionCodeAllowedValues` 公开 `nextActionCode` 的完整允许值列表，`nextActionCodesByStage` 公开阶段与合法动作编码的稳定映射，调用方可同时校验 code 是否全局合法、是否适用于当前 stage；该端点还会返回调试字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
+`/api-docs/analyze` 的响应里可以重点看这几个调试字段：`workflowStatus` 判断是否可进入审查，`suggestedTool` 给出下一步工具名，`toolCallPlan` 用 `tool`、`reason`、`payloadKeys` 描述后续工具节点的最小调用计划但暂不真实执行，`debugHints` 给调试面板展示人类可读提示，`reviewPromptVariables` 保留结构化 Prompt 变量，`reviewPromptPreview` 展示可直接交给 Agent 节点执行的中文审查请求，`analysisTrace` 记录解析、聚合、排序、路由和建议生成的关键步骤，其中路由步骤会显式标出 `workflowStatus` 与 `suggestedTool` 的匹配结果。新增的 `analysisTraceItems` 保留相同执行轨迹的结构化形态（`stage`、`status`、`message`、`nextAction`、`nextActionCode`），方便前端时间线或 Agent 编排层不用解析字符串也能展示阶段状态，并用稳定机器动作标识做确定性分支。`GET /api-docs/debug-schema` 的 `workflowStatusAllowedValues`、`workflowStageAllowedValues` 和 `suggestedToolAllowedValues` 会在顶层公开路由三件套允许值，调用方不用扫描字段表也能校验状态、阶段和工具名；`nextActionCodeAllowedValues` 公开 `nextActionCode` 的完整允许值列表，`nextActionCodesByStage` 公开阶段与合法动作编码的稳定映射，调用方可同时校验 code 是否全局合法、是否适用于当前 stage；该端点还会返回调试字段的 READY/NEEDS_INPUT 含义和前端/Agent 用法，并在完整字段表里列出顺序、分组、中文标题、UI 说明、默认可见性、渲染类型、可复制建议、交互提示、Agent 动作、目标节点、节点输入路径、交接 payload 键、节点必需性、降级值、校验规则、缺字段策略、策略级别、可重试建议、操作提示、失败升级角色、升级触发条件、升级提示、升级优先级、升级类别、升级 SLA、升级联系点、升级 Runbook、Runbook 步骤、升级责任角色、Runbook 预期结果和来源定位，方便调试面板不解析 README 也能渲染字段说明。
 
 `debug-schema` 的响应结构稳定面向前端和 Agent 编排层；本轮也把顶层路由允许值列表纳入 schema，并继续把 `analysisTraceItems` 纳入 schema 字段清单，声明它的 `array<object>` 类型、时间线渲染建议、fallback 轨迹和 READY/NEEDS_INPUT 示例：
 
@@ -283,6 +283,11 @@ curl -X POST http://localhost:8080/api-docs/analyze \
   "workflowStatus": "READY",
   "workflowStage": "REVIEW_READY",
   "suggestedTool": "api-risk-reviewer",
+  "toolCallPlan": {
+    "tool": "api-risk-reviewer",
+    "reason": "按首要模块执行 API 风险审查。",
+    "payloadKeys": ["topPriorityModule", "reviewPromptVariables"]
+  },
   "debugHints": [
     "状态：READY，可以进入 API 风险审查。",
     "工具：调用 api-risk-reviewer 执行首个审查动作。",
@@ -329,6 +334,11 @@ curl -X POST http://localhost:8080/api-docs/analyze \
   "workflowStage": "INPUT_REQUIRED",
   "blockingReason": "OpenAPI/Swagger JSON 缺少 paths 或未解析到接口。",
   "suggestedTool": "openapi-input-validator",
+  "toolCallPlan": {
+    "tool": "openapi-input-validator",
+    "reason": "校验 OpenAPI/Swagger JSON 并补齐可解析的 paths。",
+    "payloadKeys": ["blockingReason"]
+  },
   "debugHints": [
     "状态：NEEDS_INPUT，暂不进入风险审查。",
     "工具：调用 openapi-input-validator 校验输入。",

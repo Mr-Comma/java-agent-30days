@@ -48,6 +48,10 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.workflowStatus()).isEqualTo("READY");
         assertThat(response.workflowStage()).isEqualTo("REVIEW_READY");
         assertThat(response.suggestedTool()).isEqualTo("api-risk-reviewer");
+        assertThat(response.toolCallPlan()).isEqualTo(new ApiToolCallPlan(
+                "api-risk-reviewer",
+                "按首要模块执行 API 风险审查。",
+                java.util.List.of("topPriorityModule", "reviewPromptVariables")));
         assertThat(response.reviewPromptTemplate())
                 .isEqualTo("工作流阶段：REVIEW_READY；建议工具：api-risk-reviewer；首个动作：审查 orders 模块，先审查删除接口、权限控制和误删保护；请输出风险说明、测试建议和下一步行动。");
         assertThat(response.reviewPromptVariables())
@@ -157,6 +161,10 @@ class ApiDocAnalyzerServiceTest {
         assertThat(response.workflowStatus()).isEqualTo("NEEDS_INPUT");
         assertThat(response.workflowStage()).isEqualTo("INPUT_REQUIRED");
         assertThat(response.suggestedTool()).isEqualTo("openapi-input-validator");
+        assertThat(response.toolCallPlan()).isEqualTo(new ApiToolCallPlan(
+                "openapi-input-validator",
+                "校验 OpenAPI/Swagger JSON 并补齐可解析的 paths。",
+                java.util.List.of("blockingReason")));
         assertThat(response.reviewPromptTemplate())
                 .isEqualTo("工作流阶段：INPUT_REQUIRED；建议工具：openapi-input-validator；阻塞原因：OpenAPI/Swagger JSON 缺少 paths 或未解析到接口；请先补充有效输入，不要编造接口。");
         assertThat(response.reviewPromptVariables())
